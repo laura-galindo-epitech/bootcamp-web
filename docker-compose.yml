@@ -1,3 +1,5 @@
+version: "3.9"
+
 services:
   app:
     build: .
@@ -5,12 +7,13 @@ services:
     ports:
       - "3000:3000"
     volumes:
-      - .:/app
-      - /app/node_modules
+      - ./web:/app/web                 # mount only your Next.js project
+      - /app/web/node_modules          # keep node_modules inside container
     env_file:
       - .env.local
     depends_on:
       - db
+    command: npm run dev               # use 'npm run start' for production
 
   db:
     image: postgres:16
@@ -24,6 +27,10 @@ services:
       - "5432:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $POSTGRES_USER"]
+      interval: 10s
+      retries: 5
 
   pgadmin:
     image: dpage/pgadmin4
