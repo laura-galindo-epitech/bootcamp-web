@@ -6,14 +6,14 @@ WORKDIR /app
 RUN apk add --no-cache libc6-compat
 
 # ---- Copy package files from subfolder ----
-COPY bootcamp-web/package.json bootcamp-web/package-lock.json* ./bootcamp-web/
+COPY web/package.json web/package-lock.json* ./web/
 
 # Install dependencies
-WORKDIR /app/bootcamp-web
+WORKDIR /app/web
 RUN npm ci
 
 # ---- Copy the full app ----
-COPY bootcamp-web ./bootcamp-web
+COPY web ./web
 
 # ---- Build ----
 RUN npm run build
