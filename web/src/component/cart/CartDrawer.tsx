@@ -10,7 +10,7 @@ export default function CartDrawer({ open, onClose }: { open: boolean; onClose: 
             {/* Backdrop */}
             <div className={`absolute inset-0 bg-black/40 transition-opacity ${open ? 'opacity-100' : 'opacity-0'}`} onClick={onClose} />
             {/* Panel */}
-            <aside className={`absolute right-0 top-0 h-full w-full max-w-md bg-white shadow-xl transition-transform ${open ? 'translate-x-0' : 'translate-x-full'}`}>
+            <aside className={`absolute right-0 top-0 h-full w-full max-w-md bg-white shadow-2xl transition-transform rounded-l-2xl ${open ? 'translate-x-0' : 'translate-x-full'}`}>
                 <div className="p-4 border-b flex items-center justify-between">
                     <h2 className="text-lg font-semibold">Votre panier</h2>
                     <button onClick={onClose} aria-label="Fermer" className="text-sm">Fermer</button>
