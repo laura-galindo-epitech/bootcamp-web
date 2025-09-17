@@ -1,8 +1,8 @@
 import type { Metadata } from 'next'
 import './globals.css'
 import { ReactQueryProvider } from './providers'
-import Navbar from '@/component/common/Navbar'
-import Footer from '@/component/common/Footer'
+import Navbar from '@/components/common/Navbar'
+import Footer from '@/components/common/Footer'
 import { Inter } from 'next/font/google'
 
 const inter = Inter({ subsets: ['latin'] })

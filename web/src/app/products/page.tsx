@@ -1,10 +1,10 @@
 'use client'
 import { useQuery } from '@tanstack/react-query'
 import { fetchProducts } from '@/lib/api'
-import ProductGrid from '@/component/product/ProductGrid'
+import ProductGrid from '@/components/product/ProductGrid'
 import { useState } from 'react'
 import { Search } from 'lucide-react'
-import ProductFilters from '@/component/product/ProductFilters'
+import ProductFilters from '@/components/product/ProductFilters'
 
 export default function ProductsPage() {
     const [search, setSearch] = useState('')
