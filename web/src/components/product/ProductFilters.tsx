@@ -1,17 +1,11 @@
-'use client'
+'use client';
 
-type Filters = { gender?: string; category?: string }
+type Filters = { gender?: string }
 
 const genders = [
     { key: 'men', label: 'Homme' },
     { key: 'women', label: 'Femme' },
     { key: 'kids', label: 'Enfant' },
-]
-
-const categories = [
-    { key: 'running', label: 'Running' },
-    { key: 'sneakers', label: 'Lifestyle' },
-    { key: 'basketball', label: 'Basketball' },
 ]
 
 export default function ProductFilters({ value, onChange }: { value: Filters; onChange: (f: Filters) => void }) {
@@ -26,15 +20,6 @@ export default function ProductFilters({ value, onChange }: { value: Filters; on
                     >{g.label}</button>
                 ))}
             </div>
-            <div className="h-6 w-px bg-zinc-200" />
-            <select
-                value={value.category || ''}
-                onChange={e => onChange({ ...value, category: e.target.value || undefined })}
-                className="rounded-full border px-3 py-1.5 text-sm bg-white"
-            >
-                <option value="">Toutes catégories</option>
-                {categories.map(c => <option key={c.key} value={c.key}>{c.label}</option>)}
-            </select>
         </div>
     )
 }

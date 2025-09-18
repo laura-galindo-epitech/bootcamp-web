@@ -8,7 +8,7 @@ import ProductGrid from '../../components/product/ProductGrid';
 
 export default function ProductsPage() {
   const [search, setSearch] = useState('');
-  const [filters, setFilters] = useState<{ gender?: string; category?: string }>({});
+  const [filters, setFilters] = useState<{ gender?: string }>({});
   const [products, setProducts] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
@@ -36,10 +36,6 @@ export default function ProductsPage() {
 
         if (filters.gender) {
           query = query.eq('gender', filters.gender);
-        }
-
-        if (filters.category) {
-          query = query.eq('category', filters.category);
         }
 
         // Exécuter la requête

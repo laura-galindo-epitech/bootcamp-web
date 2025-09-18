@@ -42,7 +42,7 @@ export default function ProductGrid({ items }: ProductGridProps) {
           )}
 
           {/* Nom et prix */}
-          <h3 className="font-medium truncate">{item.name}</h3>
+          <h3 className="font-medium">{item.name}</h3>
           <p className="text-sm text-zinc-500">{item.base_price} €</p>
         </div>
       ))}
