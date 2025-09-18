@@ -1,33 +1,92 @@
-'use client'
-import { useQuery } from '@tanstack/react-query'
-import { fetchProducts } from '@/lib/api'
-import ProductGrid from '@/components/product/ProductGrid'
-import { useState } from 'react'
-import { Search } from 'lucide-react'
-import ProductFilters from '@/components/product/ProductFilters'
+'use client';
+
+import { useState, useEffect } from 'react';
+import { supabase } from '@/utils/supabase/client';
+import { Search } from 'lucide-react';
+import ProductFilters from '@/components/ProductFilters';
+import ProductGrid from '@/components/ProductGrid';
 
 export default function ProductsPage() {
-    const [search, setSearch] = useState('')
-    const [filters, setFilters] = useState<{gender?: string; category?: string}>({})
-    const { data, isLoading, error } = useQuery({
-        queryKey: ['products', { search, ...filters }],
-        queryFn: () => fetchProducts({ search, ...filters })
-    })
+  const [search, setSearch] = useState('');
+  const [filters, setFilters] = useState<{ gender?: string; category?: string }>({});
+  const [products, setProducts] = useState<any[]>([]);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
 
-    return (
+  useEffect(() => {
+    const fetchProducts = async () => {
+      setIsLoading(true);
+      setError(null);
+
+      try {
+        // Récupérer les produits actifs avec leurs images principales et marques
+        let query = supabase
+          .from('products')
+          .select(`
+            *,
+            product_images (image_url, alt_text),
+            brands (name, logo_url)
+          `)
+          .eq('is_active', true); // Masquer les produits inactifs
+
+        // Appliquer les filtres
+        if (search) {
+          query = query.ilike('name', `%${search}%`);
+        }
+
+        if (filters.gender) {
+          query = query.eq('gender', filters.gender);
+        }
+
+        if (filters.category) {
+          query = query.eq('category', filters.category);
+        }
+
+        // Exécuter la requête
+        const { data, error } = await query;
+
+        if (error) {
+          throw error;
+        }
+
+        // Filtrer pour ne garder que les images principales
+        const productsWithPrimaryImages = data.map(product => {
+          const primaryImage = product.product_images.find((image: any) => image.is_primary);
+          return {
+            ...product,
+            primary_image: primaryImage ? primaryImage.image_url : null,
+            brand_logo: product.brands?.logo_url,
+            brand_name: product.brands?.name,
+          };
+        });
+
+        setProducts(productsWithPrimaryImages || []);
+      } catch (err) {
+        setError('Erreur de chargement des produits');
+        console.error(err);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchProducts();
+  }, [search, filters]);
+
+  return (
     <section className="mx-auto max-w-6xl px-4 py-6 space-y-5">
-        <div className="flex items-center gap-2 rounded-full border bg-white px-4 py-2 shadow-sm">
-            <Search size={16} className="text-zinc-500" />
-            <input 
-                value={search}
-                onChange={e=>setSearch(e.target.value)}
-                placeholder="Rechercher des modèles..."
-                className="w-full bg-transparent outline-none placeholder:text-zinc-400" />
-        </div>
-        <ProductFilters value={filters} onChange={setFilters} />
-        {isLoading && <div className="text-sm text-zinc-500">Chargement...</div>}
-        {error && <div className="text-sm text-red-600">Erreur de chargement</div>}
-        {data && <ProductGrid items={data.items} />}
+      <div className="flex items-center gap-2 rounded-full border bg-white px-4 py-2 shadow-sm">
+        <Search size={16} className="text-zinc-500" />
+        <input
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          placeholder="Rechercher des modèles..."
+          className="w-full bg-transparent outline-none placeholder:text-zinc-400"
+        />
+      </div>
+      <ProductFilters value={filters} onChange={setFilters} />
+      {isLoading && <div className="text-sm text-zinc-500">Chargement...</div>}
+      {error && <div className="text-sm text-red-600">{error}</div>}
+      {products.length > 0 && <ProductGrid items={products} />}
     </section>
-    )
+  );
 }
