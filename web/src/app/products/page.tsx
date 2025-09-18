@@ -1,17 +1,26 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useSearchParams } from 'next/navigation';
 import { supabase } from '@/utils/supabase/client';
 import { Search } from 'lucide-react';
 import ProductFilters from '../../components/product/ProductFilters';
 import ProductGrid from '../../components/product/ProductGrid';
 
 export default function ProductsPage() {
+  const searchParams = useSearchParams();
+  const initialGender = (searchParams.get('gender') || undefined) as string | undefined;
   const [search, setSearch] = useState('');
-  const [filters, setFilters] = useState<{ gender?: string }>({});
+  const [filters, setFilters] = useState<{ gender?: string }>(() => ({ gender: initialGender }));
   const [products, setProducts] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
+
+  // Sync filters with URL changes (e.g., /products?gender=women)
+  useEffect(() => {
+    const g = (searchParams.get('gender') || undefined) as string | undefined;
+    setFilters((prev) => ({ ...prev, gender: g }));
+  }, [searchParams]);
 
   useEffect(() => {
     const fetchProducts = async () => {
