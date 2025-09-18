@@ -1,11 +1,11 @@
-import Hero from '@/component/common/Hero'
-import CategoryCards from '@/component/common/CategoryCards'
+import Hero from '@/components/common/Hero'
+import CategoryCards from '@/components/common/CategoryCards'
 
 export default function Home() {
-return (
-<>
-<Hero />
-<CategoryCards />
-</>
-)
+  return (
+    <>
+      <Hero />
+      <CategoryCards />
+    </>
+  )
 }
