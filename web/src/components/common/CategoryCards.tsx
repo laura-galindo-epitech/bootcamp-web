@@ -1,7 +1,7 @@
 const CATEGORIES = [
-{ key: 'running', title: 'Running', img: '/images/cat-running.jpg' },
-{ key: 'sneakers', title: 'Lifestyle', img: '/images/cat-lifestyle.jpg' },
-{ key: 'basketball', title: 'Basketball', img: '/images/cat-basket.jpg' },
+{ key: 'homme', title: 'Homme', img: '/images/cat-running.jpg' },
+{ key: 'femme', title: 'Femme', img: '/images/cat-lifestyle.jpg' },
+{ key: 'enfant', title: 'Enfants', img: '/images/cat-basket.jpg' },
 ]
 
 export default function CategoryCards() {
