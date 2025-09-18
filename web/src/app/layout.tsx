@@ -16,7 +16,7 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="fr">
-      <body className={`${inter.className} antialiased bg-zinc-50 text-zinc-900`}>
+      <body className={`${inter.className} antialiased bg-zinc-50 text-zinc-900 min-h-screen flex flex-col`}>
         <ReactQueryProvider>
           <Navbar />
           <main className="flex-1">{children}</main>
