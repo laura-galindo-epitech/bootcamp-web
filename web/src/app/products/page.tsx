@@ -3,8 +3,8 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/utils/supabase/client';
 import { Search } from 'lucide-react';
-import ProductFilters from '@/components/ProductFilters';
-import ProductGrid from '@/components/ProductGrid';
+import ProductFilters from '../../components/product/ProductFilters';
+import ProductGrid from '../../components/product/ProductGrid';
 
 export default function ProductsPage() {
   const [search, setSearch] = useState('');
