@@ -23,10 +23,11 @@ export default function Navbar() {
                     {open ? <X size={20} /> : <Menu size={20} />}
                 </button>
 
-                {/* Logo + Produits (desktop) */}
+                {/* Logo + Produits + A propos (desktop) */}
                 <div className='flex items-center gap-6'>
                     <Link href="/" className="font-semibold tracking-tight text-lg">OneShoe</Link>
-                    <Link href="/products" className="hidden md:inline-block hover:opacity-80 transition text-sm">Voir les produits</Link>
+                    <Link href="/products" className="hidden md:inline-block hover:opacity-80 transition text-sm">Nos produits</Link>
+                    <Link href="/about" className="hidden md:inline-block hover:opacity-80 transition text-sm">À propos</Link>
                 </div>
 
                 {/* Right: account/cart + burger */}
@@ -50,8 +51,12 @@ export default function Navbar() {
                         <div id="mobile-menu" className="md:hidden absolute top-14 inset-x-0 bg-white border-b shadow-sm">
                             <nav className="py-2">
                                 <Link href="/products" className="block px-4 py-3 hover:bg-zinc-50" onClick={() => setOpen(false)}>
-                                    Voir les produits
+                                    Nos produits
                                 </Link>
+                                <Link href="/about" className="block px-4 py-3 hover:bg-zinc-50" onClick={() => setOpen(false)}>
+                                    À propos
+                                </Link>
+
                             </nav>
                         </div>
                     )}
