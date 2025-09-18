@@ -1,8 +1,9 @@
-/** @type {import('next').NextConfig} */
+const path = require('path');
+
 const nextConfig = {
   images: {
     domains: ['contents.mediadecathlon.com'],
   },
+  outputFileTracingRoot: path.join(__dirname, '../'),
 };
-
 module.exports = nextConfig;
