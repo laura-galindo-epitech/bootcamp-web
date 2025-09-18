@@ -1,7 +1,7 @@
 import type { Metadata } from 'next'
 import './globals.css'
 import { ReactQueryProvider } from './providers'
-import Navbar from '@/components/common/Navbar'
+import Navbar from '../components/common/Navbar'
 import Footer from '@/components/common/Footer'
 import { Inter } from 'next/font/google'
 
@@ -10,7 +10,7 @@ const inter = Inter({ subsets: ['latin'] })
 export const metadata: Metadata = {
   title: 'OneShoe',
   description: 'E‑commerce school project',
-  icons: { icon: '/icon.png' }
+  icons: { icon: '/favicon.ico' }
 }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
