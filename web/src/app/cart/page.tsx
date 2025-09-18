@@ -23,7 +23,7 @@ export default function CartPage() {
             </div>
             <div className="mt-6 flex items-center justify-between">
                 <div className="text-lg font-medium">Total : {formatPrice(total)}</div>
-                    <a href="/checkout" className="px-4 py-2 rounded bg-black text-white">Passer au paiement</a>
+                <a href="/checkout" className="px-4 py-2 rounded bg-black text-white">Passer au paiement</a>
             </div>
         </section>
     )

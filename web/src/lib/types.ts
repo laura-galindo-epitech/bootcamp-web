@@ -29,3 +29,26 @@ export type CartItem = {
     quantity: number
     unitPrice: number // cents
 }
+
+export type CustomerInfo = {
+    firstName:string
+    lastName:string
+    email:string
+    phone?:string
+    address:string
+    zip:string
+    city:string
+    country:string
+}
+
+export type OrderItem = CartItem
+
+export type Order = {
+    id:string
+    number:string
+    status:'paid'
+    items:OrderItem[]
+    total:number
+    customer:CustomerInfo
+    createdAt:string
+}
