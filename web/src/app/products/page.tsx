@@ -19,13 +19,13 @@ export default function ProductsPage() {
       setError(null);
 
       try {
-        // Récupérer les produits actifs avec leurs images principales et marques
+        // Récupérer les produits actifs avec leurs images et marques
         let query = supabase
           .from('products')
           .select(`
             *,
-            product_images (image_url, alt_text),
-            brands (name, logo_url)
+            product_images (*),
+            brands (*)
           `)
           .eq('is_active', true); // Masquer les produits inactifs
 
@@ -49,18 +49,20 @@ export default function ProductsPage() {
           throw error;
         }
 
-        // Filtrer pour ne garder que les images principales
-        const productsWithPrimaryImages = data.map(product => {
-          const primaryImage = product.product_images.find((image: any) => image.is_primary);
+        // Traiter les données
+        const processedProducts = data.map(product => {
+          const brand = product.brands || null;
+          const images = product.product_images || [];
+
           return {
             ...product,
-            primary_image: primaryImage ? primaryImage.image_url : null,
-            brand_logo: product.brands?.logo_url,
-            brand_name: product.brands?.name,
+            images: images,
+            brand_logo: brand?.logo_url,
+            brand_name: brand?.name,
           };
         });
 
-        setProducts(productsWithPrimaryImages || []);
+        setProducts(processedProducts || []);
       } catch (err) {
         setError('Erreur de chargement des produits');
         console.error(err);
