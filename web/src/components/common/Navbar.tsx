@@ -28,7 +28,7 @@ export default function Navbar() {
                     <Link href="/" className="font-semibold tracking-tight text-lg">OneShoe</Link>
                     {/* Desktop: dropdown hover for Nos produits */}
                     <div className="relative hidden md:block group">
-                        <Link href="/products" aria-haspopup="menu" className="inline-block hover:opacity-80 transition text-sm">Nos produits</Link>
+                        <Link href="/products" aria-haspopup="menu" className="inline-block font-bold text-blue-700 hover:opacity-80 transition text-sm">Nos produits</Link>
                         <div className="absolute left-0 top-full pt-2 hidden group-hover:block z-50 rounded-md bg-white/95 backdrop-blur shadow-lg min-w-[200px] py-2">
                             <Link href="/products?gender=men" className="block px-4 py-3 text-sm text-zinc-700 hover:bg-neutral-100">Homme</Link>
                             <Link href="/products?gender=women" className="block px-4 py-3 text-sm text-zinc-700 hover:bg-neutral-100">Femme</Link>
@@ -80,7 +80,7 @@ export default function Navbar() {
                             </button>
                         </div>
                         <nav className="py-2 bg-white/95 backdrop-blur shadow-lg">
-                            <Link href="/products" className="block px-4 py-3 hover:bg-neutral-100" onClick={() => setOpen(false)}>
+                            <Link href="/products" className="block px-4 py-3 font-bold text-blue-700 hover:bg-neutral-100" onClick={() => setOpen(false)}>
                                 Nos produits
                             </Link>
                             {/* Mobile: sub-links always visible under Nos produits */}
