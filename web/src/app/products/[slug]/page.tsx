@@ -26,7 +26,7 @@ export default async function ProductDetailPage({ params }: { params: { slug: st
     .from('products')
     .select(`
       id, slug, name, description, base_price, is_active,
-      brands (*),
+      brand: brand_id ( id, name, logo_url ),
       product_variants (
         id, eu_size, stock_quantity, price, gender, color, image_url,
         product_images ( image_url, alt_text, is_primary )
@@ -64,7 +64,7 @@ export default async function ProductDetailPage({ params }: { params: { slug: st
     id: String(product.id),
     slug: product.slug,
     name: product.name,
-    brand: product.brands?.name ?? '',
+    brand: product.brand?.name ?? '',
     description: product.description ?? '',
     images: images.length ? images : ['/images/hero-shoe.jpg'],
     variants: variants.length ? variants : [{ id: 'default', size: '42', stock: 0, price: toCents(product.base_price ?? 0) }],

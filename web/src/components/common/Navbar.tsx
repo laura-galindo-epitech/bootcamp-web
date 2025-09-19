@@ -4,7 +4,7 @@ import { useCart } from '@/store/cart'
 import { ShoppingBag, User, Menu, X } from 'lucide-react'
 import { useState } from 'react'
 
-export default function Navbar() {
+export default function Navbar({ isAdmin = false }: { isAdmin?: boolean }) {
     const count = useCart((s) => s.items.reduce((n, i) => n + i.quantity, 0))
     const [open, setOpen] = useState(false)
 
@@ -25,7 +25,7 @@ export default function Navbar() {
 
                 {/* Logo + Produits + A propos (desktop) */}
                 <div className='flex items-center gap-6'>
-                    <Link href="/" className="font-semibold tracking-tight text-lg">OneShoe</Link>
+                    <Link href="/" className="font-semibold tracking-tight text-2xl">OneShoe</Link>
                     {/* Desktop: dropdown hover for Nos produits */}
                     <div className="relative hidden md:block group">
                         <Link href="/products" aria-haspopup="menu" className="inline-block font-bold text-blue-700 hover:opacity-80 transition text-sm">Nos produits</Link>
@@ -41,6 +41,11 @@ export default function Navbar() {
                 {/* Right: account/cart */}
                 <div className="flex items-center gap-4">
                     <nav className="flex items-center gap-6 text-sm">
+                        {isAdmin && (
+                            <Link href="/admin" className="inline-flex items-center gap-2 hover:opacity-80 transition">
+                                <span className="hidden md:inline">Admin</span>
+                            </Link>
+                        )}
                         <Link href="/account" className="inline-flex items-center gap-2 hover:opacity-80 transition">
                             <User size={18} />
                             <span className="hidden md:inline">Mon compte</span>
@@ -101,6 +106,11 @@ export default function Navbar() {
                             <Link href="/about" className="block px-4 py-3 hover:bg-neutral-100" onClick={() => setOpen(false)}>
                                 À propos
                             </Link>
+                            {isAdmin && (
+                                <Link href="/admin" className="block px-4 py-3 hover:bg-neutral-100" onClick={() => setOpen(false)}>
+                                    Admin
+                                </Link>
+                            )}
                         </nav>
                     </div>
                 </div>

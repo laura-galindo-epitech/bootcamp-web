@@ -4,6 +4,7 @@ import { ReactQueryProvider } from './providers'
 import Navbar from '../components/common/Navbar'
 import Footer from '@/components/common/Footer'
 import { Inter } from 'next/font/google'
+import { auth } from '../../auth'
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -13,12 +14,14 @@ export const metadata: Metadata = {
   icons: { icon: '/favicon.ico' }
 }
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default async function RootLayout({ children }: { children: React.ReactNode }) {
+  const session = await auth()
+  const isAdmin = (session?.user && (session.user as any).role === 'admin') || process.env.ADMIN_DEV_OVERRIDE === '1'
   return (
     <html lang="fr">
       <body className={`${inter.className} antialiased bg-zinc-50 text-zinc-900 min-h-screen flex flex-col`}>
         <ReactQueryProvider>
-          <Navbar />
+          <Navbar isAdmin={!!isAdmin} />
           <main className="flex-1">{children}</main>
           <Footer />
         </ReactQueryProvider>
