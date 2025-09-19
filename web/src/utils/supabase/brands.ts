@@ -4,24 +4,26 @@ interface Brand {
   name: string;
 }
 
-export const fetchDistinctBrands = async (): Promise<string[]> => {
+export const fetchDistinctBrands = async (): Promise<Brand[]> => {
   try {
-    const { data, error } = await supabase.rpc('get_distinct_brand_names');
+    const { data, error } = await supabase
+      .from('brands')
+      .select('name');
 
     if (error) {
       console.error('Erreur lors de la récupération des marques :', error);
       return [];
     }
 
-    // Vérifier que `data` est bien un tableau et extraire les noms uniques
-    if (!Array.isArray(data)) {
-      console.error('Les données retournées ne sont pas un tableau.');
-      return [];
-    }
+    // Filtrer les doublons
+    const uniqueBrandsMap = new Map<string, Brand>();
+    data.forEach((brand) => {
+      if (!uniqueBrandsMap.has(brand.name)) {
+        uniqueBrandsMap.set(brand.name, brand);
+      }
+    });
 
-    // Extraire les noms uniques
-    const uniqueBrands = [...new Set(data.map((item: Brand) => item.name))];
-    return uniqueBrands;
+    return Array.from(uniqueBrandsMap.values());
   } catch (err) {
     console.error('Erreur inattendue lors de la récupération des marques :', err);
     return [];

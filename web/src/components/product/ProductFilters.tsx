@@ -1,8 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { fetchDistinctBrands } from '@/utils/supabase/brands';
-import { fetchDistinctColorFamilies } from '@/utils/supabase/colors';
+import { supabase } from '@/utils/supabase/client';
 
 type Filters = {
   gender?: string;
@@ -11,6 +10,11 @@ type Filters = {
   colorFamilies?: string[];
 };
 
+interface Brand {
+  id: number;
+  name: string;
+}
+
 const genders = [
   { key: 'men', label: 'Homme' },
   { key: 'women', label: 'Femme' },
@@ -18,16 +22,16 @@ const genders = [
 ];
 
 const priceRanges = [
-  { label: '5-15€', value: '5-15' },
-  { label: '15-20€', value: '15-20' },
-  { label: '20-25€', value: '20-25' },
-  { label: '25-30€', value: '25-30' },
-  { label: '30-35€', value: '30-35' },
-  { label: '35-45€', value: '35-45' },
+  { label: '0-10€', value: '0-10' },
+  { label: '10-20€', value: '10-20' },
+  { label: '20-30€', value: '20-30' },
+  { label: '30-40€', value: '30-40' },
+  { label: '40-50€', value: '40-50' },
+  { label: '50-60€', value: '50-60' },
 ];
 
 export default function ProductFilters({ value, onChange }: { value: Filters; onChange: (f: Filters) => void }) {
-  const [brands, setBrands] = useState<string[]>([]);
+  const [brands, setBrands] = useState<Brand[]>([]);
   const [colorFamilies, setColorFamilies] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
 
@@ -35,14 +39,30 @@ export default function ProductFilters({ value, onChange }: { value: Filters; on
     const loadData = async () => {
       setIsLoading(true);
       try {
-        const [distinctBrands, distinctColors] = await Promise.all([
-          fetchDistinctBrands(),
-          fetchDistinctColorFamilies(),
-        ]);
-        setBrands(distinctBrands);
-        setColorFamilies(distinctColors);
+        // Récupérer les marques distinctes
+        const { data: brandsData, error: brandsError } = await supabase
+          .from('brands')
+          .select('id, name');
+
+        if (brandsError) {
+          console.error('Erreur lors de la récupération des marques :', brandsError);
+        } else {
+          setBrands(brandsData || []);
+        }
+
+        // Récupérer les familles de couleurs distinctes
+        const { data: colorsData, error: colorsError } = await supabase
+          .from('product_variants')
+          .select('color_family');
+
+        if (colorsError) {
+          console.error('Erreur lors de la récupération des couleurs :', colorsError);
+        } else {
+          const uniqueColors = [...new Set(colorsData.map((item: { color_family: string }) => item.color_family))];
+          setColorFamilies(uniqueColors);
+        }
       } catch (err) {
-        console.error('Erreur lors du chargement des filtres :', err);
+        console.error('Erreur lors du chargement des filtres :', err instanceof Error ? err.message : 'Erreur inconnue');
       } finally {
         setIsLoading(false);
       }
@@ -55,10 +75,13 @@ export default function ProductFilters({ value, onChange }: { value: Filters; on
     onChange({ ...value, gender: value.gender === gender ? undefined : gender });
   };
 
-  const handleBrandChange = (brand: string) => {
-    const updatedBrands = value.brands?.includes(brand)
-      ? value.brands?.filter((b) => b !== brand)
-      : [...(value.brands || []), brand];
+  const handleBrandChange = (brandId: number) => {
+    const brandName = brands.find(brand => brand.id === brandId)?.name;
+    if (!brandName) return;
+
+    const updatedBrands = value.brands?.includes(brandName)
+      ? value.brands?.filter((b) => b !== brandName)
+      : [...(value.brands || []), brandName];
     onChange({ ...value, brands: updatedBrands });
   };
 
@@ -102,13 +125,13 @@ export default function ProductFilters({ value, onChange }: { value: Filters; on
         <div className="flex flex-wrap gap-2 mt-2">
           {brands.map((brand) => (
             <button
-              key={brand}
-              onClick={() => handleBrandChange(brand)}
+              key={brand.id}
+              onClick={() => handleBrandChange(brand.id)}
               className={`rounded-full border px-4 py-1.5 text-sm ${
-                value.brands?.includes(brand) ? 'bg-black text-white' : 'hover:bg-zinc-50'
+                value.brands?.includes(brand.name) ? 'bg-black text-white' : 'hover:bg-zinc-50'
               }`}
             >
-              {brand}
+              {brand.name}
             </button>
           ))}
         </div>
