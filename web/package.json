@@ -14,10 +14,12 @@
     "@tanstack/react-query": "^5.89.0",
     "lucide-react": "^0.544.0",
     "next": "15.5.3",
+    "next-auth": "^5.0.0-beta.29",
     "path": "^0.12.7",
     "react": "19.1.0",
     "react-dom": "19.1.0",
     "react-hook-form": "^7.62.0",
+    "supabase": "^2.40.7",
     "zod": "^4.1.9",
     "zustand": "^5.0.8"
   },

@@ -2,7 +2,10 @@ import path from 'path';
 
 const nextConfig = {
   images: {
-    domains: ['contents.mediadecathlon.com',],
+    domains: [
+      'contents.mediadecathlon.com',
+      'commons.wikimedia.org',
+    ],
   },
   outputFileTracingRoot: path.join(__dirname, '../'),
 };
