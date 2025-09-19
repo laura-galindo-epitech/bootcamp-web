@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import Image from 'next/image';
+import Link from 'next/link';
 
 interface Product {
   id: number;
@@ -8,6 +9,7 @@ interface Product {
   images: Array<{ image_url: string; alt_text: string }>;
   brand_logo?: string | null;
   brand_name?: string | null;
+  slug: string;
 }
 
 interface ProductGridProps {
@@ -18,7 +20,7 @@ export default function ProductGrid({ items }: ProductGridProps) {
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
       {items.map((item) => (
-        <div key={item.id} className="border rounded-lg p-4 space-y-3">
+        <Link key={item.id} href={`/products/${item.slug}`} className="border rounded-lg p-4 space-y-3 block hover:shadow-sm transition-shadow">
           {/* Carrousel d'images */}
           <ProductCarousel images={item.images} />
 
@@ -44,7 +46,7 @@ export default function ProductGrid({ items }: ProductGridProps) {
           {/* Nom et prix */}
           <h3 className="font-medium">{item.name}</h3>
           <p className="text-sm text-zinc-500">{item.base_price} €</p>
-        </div>
+        </Link>
       ))}
     </div>
   );

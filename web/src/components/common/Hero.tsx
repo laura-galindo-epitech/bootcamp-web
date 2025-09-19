@@ -74,7 +74,7 @@ export default function Hero() {
                     <h1 className="mt-2 text-3xl md:text-5xl font-semibold tracking-tight text-zinc-50">Move. Breathe. Repeat.</h1>
                     <p className="mt-3 text-zinc-50 max-w-prose">Des modèles sélectionnés pour la course, le training et le quotidien. Confort, légèreté, durabilité.</p>
                     <div className="mt-6 flex items-center gap-3">
-                        <a href="/products" className="inline-flex items-center rounded-full bg-zinc-600 px-6 py-3 text-white hover:opacity-90">Acheter maintenant!</a>
+                        <a href="/products" className="inline-flex items-center rounded-full bg-blue-700 px-6 py-3 text-white hover:opacity-90">Acheter maintenant!</a>
                         <a href="#categories" className="inline-flex items-center rounded-full px-6 py-3 bg-white/80 backdrop-blur hover:opacity-90">Parcourir</a>
                     </div>
                 </div>

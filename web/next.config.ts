@@ -1,8 +1,8 @@
-const path = require('path');
+import path from 'path';
 
 const nextConfig = {
   images: {
-    domains: ['contents.mediadecathlon.com'],
+    domains: ['contents.mediadecathlon.com',],
   },
   outputFileTracingRoot: path.join(__dirname, '../'),
 };
