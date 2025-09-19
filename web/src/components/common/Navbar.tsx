@@ -26,7 +26,15 @@ export default function Navbar() {
                 {/* Logo + Produits + A propos (desktop) */}
                 <div className='flex items-center gap-6'>
                     <Link href="/" className="font-semibold tracking-tight text-lg">OneShoe</Link>
-                    <Link href="/products" className="hidden md:inline-block hover:opacity-80 transition text-sm">Nos produits</Link>
+                    {/* Desktop: dropdown hover for Nos produits */}
+                    <div className="relative hidden md:block group">
+                        <Link href="/products" aria-haspopup="menu" className="inline-block hover:opacity-80 transition text-sm">Nos produits</Link>
+                        <div className="absolute left-0 top-full pt-2 hidden group-hover:block z-50 rounded-md bg-white/95 backdrop-blur shadow-lg min-w-[200px] py-2">
+                            <Link href="/products?gender=men" className="block px-4 py-3 text-sm text-zinc-700 hover:bg-neutral-100">Homme</Link>
+                            <Link href="/products?gender=women" className="block px-4 py-3 text-sm text-zinc-700 hover:bg-neutral-100">Femme</Link>
+                            <Link href="/products?gender=kids" className="block px-4 py-3 text-sm text-zinc-700 hover:bg-neutral-100">Enfant</Link>
+                        </div>
+                    </div>
                     <Link href="/about" className="hidden md:inline-block hover:opacity-80 transition text-sm">À propos</Link>
                 </div>
 
@@ -75,6 +83,18 @@ export default function Navbar() {
                             <Link href="/products" className="block px-4 py-3 hover:bg-neutral-100" onClick={() => setOpen(false)}>
                                 Nos produits
                             </Link>
+                            {/* Mobile: sub-links always visible under Nos produits */}
+                            <div className="mt-1">
+                                <Link href="/products?gender=men" className="block pl-8 py-2 text-sm text-zinc-700 hover:bg-neutral-100" onClick={() => setOpen(false)}>
+                                    Homme
+                                </Link>
+                                <Link href="/products?gender=women" className="block pl-8 py-2 text-sm text-zinc-700 hover:bg-neutral-100" onClick={() => setOpen(false)}>
+                                    Femme
+                                </Link>
+                                <Link href="/products?gender=kids" className="block pl-8 py-2 text-sm text-zinc-700 hover:bg-neutral-100" onClick={() => setOpen(false)}>
+                                    Enfant
+                                </Link>
+                            </div>
                             <Link href="/account/settings" className="block px-4 py-3 hover:bg-neutral-100" onClick={() => setOpen(false)}>
                                 Paramètres
                             </Link>
