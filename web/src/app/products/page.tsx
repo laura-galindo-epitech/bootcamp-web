@@ -1,3 +1,4 @@
+// src/app/products/page.tsx
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
@@ -19,13 +20,17 @@ interface Brand {
 }
 
 interface ProductVariant {
+  id: number;
   color_family: string;
   price: number;
   gender?: string;
 }
 
 interface ProductImage {
+  id: number;
   image_url: string;
+  alt_text: string;
+  is_primary: boolean;
 }
 
 interface Product {
@@ -50,26 +55,13 @@ export default function ProductsPage() {
     setError(null);
 
     try {
-      let query = supabase
+      // Récupérer les produits
+      let productsQuery = supabase
         .from('products')
-        .select(`
-          id,
-          name,
-          slug,
-          base_price,
-          brand_id,
-          brand: brand_id (id, name, logo_url),
-          product_images: product_images(image_url),
-          product_variants: product_variants(color_family, price, gender)
-        `);
+        .select('id, name, slug, base_price, brand_id, brand:brands(id, name, logo_url)');
 
-      // Filtrer par terme de recherche
       if (searchTerm) {
-        query = query.ilike('name', `%${searchTerm}%`);
-      }
-
-      if (filters.gender) {
-        query = query.contains('product_variants', { gender: filters.gender });
+        productsQuery = productsQuery.ilike('name', `%${searchTerm}%`);
       }
 
       if (filters.brands && filters.brands.length > 0) {
@@ -84,7 +76,7 @@ export default function ProductsPage() {
 
         if (brandIdsQuery.data && brandIdsQuery.data.length > 0) {
           const brandIds = brandIdsQuery.data.map(brand => brand.id);
-          query = query.in('brand_id', brandIds);
+          productsQuery = productsQuery.in('brand_id', brandIds);
         } else {
           setProducts([]);
           return;
@@ -93,43 +85,76 @@ export default function ProductsPage() {
 
       if (filters.priceRange) {
         const [minPrice, maxPrice] = filters.priceRange.split('-').map(Number);
-        query = query.gte('base_price', minPrice).lte('base_price', maxPrice || 1000);
+        productsQuery = productsQuery.gte('base_price', minPrice).lte('base_price', maxPrice || 1000);
       }
 
-      if (filters.colorFamilies && filters.colorFamilies.length > 0) {
-        query = query.contains('product_variants', { color_family: filters.colorFamilies });
+      const { data: productsData, error: productsError } = await productsQuery;
+
+      if (productsError) {
+        throw new Error(`Erreur lors de la récupération des produits: ${productsError.message}`);
       }
 
-      const { data, error } = await query;
-
-      if (error) {
-        throw new Error(`Erreur lors de la récupération des produits: ${error.message}`);
-      }
-
-      if (!data) {
+      if (!productsData) {
         throw new Error('Aucune donnée retournée par la requête.');
       }
 
-      // Transformer les données pour correspondre à l'interface Product
-      const formattedProducts = data.map((product) => {
-        const brand = product.brand ? {
-          id: product.brand.id,
-          name: product.brand.name,
-          logo_url: product.brand.logo_url
-        } : { id: 0, name: '', logo_url: null };
+      // Récupérer les images et les variants pour chaque produit
+      const productsWithDetails = await Promise.all(
+        productsData.map(async (product) => {
+          // Récupérer les images du produit
+          const { data: imagesData, error: imagesError } = await supabase
+            .from('product_images')
+            .select('id, image_url, alt_text, is_primary')
+            .eq('product_variant_id', product.id);
 
-        return {
-          id: product.id,
-          name: product.name,
-          slug: product.slug,
-          base_price: product.base_price,
-          brand: brand,
-          product_images: product.product_images || [],
-          product_variants: product.product_variants || [],
-        };
+          if (imagesError) {
+            console.error(`Erreur lors de la récupération des images pour le produit ${product.id}: ${imagesError.message}`);
+          }
+
+          // Récupérer les variants du produit
+          const { data: variantsData, error: variantsError } = await supabase
+            .from('product_variants')
+            .select('id, color_family, price, gender')
+            .eq('product_id', product.id);
+
+          if (variantsError) {
+            console.error(`Erreur lors de la récupération des variants pour le produit ${product.id}: ${variantsError.message}`);
+          }
+
+          // Filtrer les variants par gender si nécessaire
+          let filteredVariants = variantsData || [];
+          if (filters.gender) {
+            filteredVariants = filteredVariants.filter(variant => variant.gender === filters.gender);
+          }
+
+          // Filtrer les variants par color_family si nécessaire
+          if (filters.colorFamilies && filters.colorFamilies.length > 0) {
+            filteredVariants = filteredVariants.filter(variant =>
+              filters.colorFamilies!.includes(variant.color_family)
+            );
+          }
+
+          return {
+            ...product,
+            brand: product.brand || { id: 0, name: '', logo_url: null },
+            product_images: imagesData || [],
+            product_variants: filteredVariants,
+          };
+        })
+      );
+
+      // Filtrer les produits qui n'ont pas de variants correspondants aux filtres
+      const filteredProducts = productsWithDetails.filter(product => {
+        if (filters.gender && product.product_variants.length === 0) {
+          return false;
+        }
+        if (filters.colorFamilies && filters.colorFamilies.length > 0 && product.product_variants.length === 0) {
+          return false;
+        }
+        return true;
       });
 
-      setProducts(formattedProducts);
+      setProducts(filteredProducts);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Une erreur inconnue est survenue.');
       console.error('Erreur détaillée :', err);
