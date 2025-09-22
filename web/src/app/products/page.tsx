@@ -112,10 +112,12 @@ export default function ProductsPage() {
 
       // Transformer les données pour correspondre à l'interface Product
       const formattedProducts = data.map((product) => {
-        const brand = product.brand ? {
-          id: product.brand.id,
-          name: product.brand.name,
-          logo_url: product.brand.logo_url
+        const brandRaw = (product as any).brand
+        const brandObj = Array.isArray(brandRaw) ? brandRaw[0] : brandRaw
+        const brand = brandObj ? {
+          id: brandObj.id,
+          name: brandObj.name,
+          logo_url: brandObj.logo_url
         } : { id: 0, name: '', logo_url: null };
 
         return {

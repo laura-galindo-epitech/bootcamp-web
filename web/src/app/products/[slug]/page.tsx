@@ -60,11 +60,12 @@ export default async function ProductDetailPage({ params }: { params: { slug: st
     price: toCents(v.price ?? product.base_price ?? 0),
   }))
 
+  const brandObj = Array.isArray((product as any).brand) ? (product as any).brand[0] : (product as any).brand
   const normalized: ProductView = {
     id: String(product.id),
     slug: product.slug,
     name: product.name,
-    brand: product.brand?.name ?? '',
+    brand: brandObj?.name ?? '',
     description: product.description ?? '',
     images: images.length ? images : ['/images/hero-shoe.jpg'],
     variants: variants.length ? variants : [{ id: 'default', size: '42', stock: 0, price: toCents(product.base_price ?? 0) }],

@@ -1,16 +1,15 @@
 import Container from '@/components/common/Container'
-import { auth } from '../../../auth'
 import { redirect } from 'next/navigation'
+import { createClient } from '@/utils/supabase/server'
 import Link from 'next/link'
 import { Users, ShoppingCart, Euro, PiggyBank, Calendar, Plus } from 'lucide-react'
 
 export default async function AdminDashboardPage() {
   // En dev, si ADMIN_DEV_OVERRIDE=1, on laisse passer sans session
   if (process.env.ADMIN_DEV_OVERRIDE !== '1') {
-    const session = await auth()
-    if (!session?.user || (session.user as any).role !== 'admin') {
-      return redirect('/login?next=/admin')
-    }
+    const supabase = await createClient()
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) return redirect('/login?next=/admin')
   }
   // Données factices pour le template (à remplacer plus tard)
   const stats = [

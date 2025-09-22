@@ -1,6 +1,6 @@
 'use client'
 import { FormEvent, useState } from 'react'
-import { signIn } from 'next-auth/react'
+import { supabase } from '@/utils/supabase/client'
 
 export default function LoginPage() {
   const [email, setEmail] = useState('')
@@ -9,14 +9,24 @@ export default function LoginPage() {
 
   const sendMagicLink = async (e: FormEvent) => {
     e.preventDefault()
-    if (!email) return
-    await signIn('email', { email, callbackUrl: '/' })
+    // Optionnel: si tu ajoutes SMTP côté Supabase, tu peux déclencher un magic link ici
+    // await supabase.auth.signInWithOtp({ email, options: { emailRedirectTo: `${location.origin}/auth/callback` } })
   }
 
   const signInWithCredentials = async (e: FormEvent) => {
     e.preventDefault()
     if (!credEmail || !credPassword) return
-    await signIn('credentials', { email: credEmail, password: credPassword, redirect: true, callbackUrl: '/' })
+    const { error } = await supabase.auth.signInWithPassword({ email: credEmail, password: credPassword })
+    if (!error) {
+      window.location.href = '/'
+    }
+  }
+
+  const signInWithGoogleSupabase = async () => {
+    await supabase.auth.signInWithOAuth({
+      provider: 'google',
+      options: { redirectTo: `${location.origin}/auth/callback` },
+    })
   }
 
   return (
@@ -25,17 +35,12 @@ export default function LoginPage() {
       <p className="text-sm text-zinc-600">Choisissez une méthode de connexion</p>
 
       <div className="space-y-2">
+        {/* Supabase Auth Google */}
         <button
-          onClick={() => signIn('google', { callbackUrl: '/' })}
+          onClick={signInWithGoogleSupabase}
           className="w-full rounded-full bg-red-600 text-white px-4 py-2 hover:opacity-90"
         >
           Continuer avec Google
-        </button>
-        <button
-          onClick={() => signIn('facebook', { callbackUrl: '/' })}
-          className="w-full rounded-full bg-blue-700 text-white px-4 py-2 hover:opacity-90"
-        >
-          Continuer avec Facebook
         </button>
       </div>
 

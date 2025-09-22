@@ -4,7 +4,7 @@ import { ReactQueryProvider } from './providers'
 import Navbar from '../components/common/Navbar'
 import Footer from '@/components/common/Footer'
 import { Inter } from 'next/font/google'
-import { auth } from '../../auth'
+import { createClient } from '@/utils/supabase/server'
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -14,10 +14,15 @@ export const metadata: Metadata = {
   icons: { icon: '/favicon.ico' }
 }
 
+// Force le rendu dynamique pour lire les cookies Supabase à chaque requête
+export const dynamic = 'force-dynamic'
+
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
-  const session = await auth()
-  const isAdmin = (session?.user && (session.user as any).role === 'admin') || process.env.ADMIN_DEV_OVERRIDE === '1'
-  const isLoggedIn = !!session?.user
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  const isLoggedIn = !!user
+  // Admin: on conserve seulement l'override dev pour l'instant
+  const isAdmin = process.env.ADMIN_DEV_OVERRIDE === '1'
   return (
     <html lang="fr">
       <body className={`${inter.className} antialiased bg-zinc-50 text-zinc-900 min-h-screen flex flex-col`}>

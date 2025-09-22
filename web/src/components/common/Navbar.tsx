@@ -2,11 +2,29 @@
 import Link from 'next/link'
 import { useCart } from '@/store/cart'
 import { ShoppingBag, User, Menu, X } from 'lucide-react'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
+import { supabase } from '@/utils/supabase/client'
 
 export default function Navbar({ isAdmin = false, isLoggedIn = false }: { isAdmin?: boolean; isLoggedIn?: boolean }) {
     const count = useCart((s) => s.items.reduce((n, i) => n + i.quantity, 0))
     const [open, setOpen] = useState(false)
+    const [loggedIn, setLoggedIn] = useState<boolean>(!!isLoggedIn)
+
+    useEffect(() => {
+        let mounted = true
+        // Hydrate from Supabase client (local storage based)
+        supabase.auth.getUser().then(({ data: { user } }) => {
+            if (!mounted) return
+            setLoggedIn(!!user)
+        })
+        const { data: sub } = supabase.auth.onAuthStateChange((_event, session) => {
+            setLoggedIn(!!session?.user)
+        })
+        return () => {
+            mounted = false
+            sub.subscription.unsubscribe()
+        }
+    }, [])
 
     return (
         <header className="sticky top-0 z-40 bg-white/70 backdrop-blur">
@@ -46,7 +64,7 @@ export default function Navbar({ isAdmin = false, isLoggedIn = false }: { isAdmi
                                 <span className="hidden md:inline">Admin</span>
                             </Link>
                         )}
-                        {isLoggedIn ? (
+                        {loggedIn ? (
                             <Link href="/account" className="inline-flex items-center gap-2 hover:opacity-80 transition">
                                 <User size={18} />
                                 <span className="hidden md:inline">Mon compte</span>
@@ -107,7 +125,7 @@ export default function Navbar({ isAdmin = false, isLoggedIn = false }: { isAdmi
                                     Enfant
                                 </Link>
                             </div>
-                            {isLoggedIn ? (
+                            {loggedIn ? (
                                 <Link href="/account" className="block px-4 py-3 hover:bg-neutral-100" onClick={() => setOpen(false)}>
                                     Mon compte
                                 </Link>
