@@ -17,11 +17,12 @@ export const metadata: Metadata = {
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
   const session = await auth()
   const isAdmin = (session?.user && (session.user as any).role === 'admin') || process.env.ADMIN_DEV_OVERRIDE === '1'
+  const isLoggedIn = !!session?.user
   return (
     <html lang="fr">
       <body className={`${inter.className} antialiased bg-zinc-50 text-zinc-900 min-h-screen flex flex-col`}>
         <ReactQueryProvider>
-          <Navbar isAdmin={!!isAdmin} />
+          <Navbar isAdmin={!!isAdmin} isLoggedIn={isLoggedIn} />
           <main className="flex-1">{children}</main>
           <Footer />
         </ReactQueryProvider>

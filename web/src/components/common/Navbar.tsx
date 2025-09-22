@@ -4,7 +4,7 @@ import { useCart } from '@/store/cart'
 import { ShoppingBag, User, Menu, X } from 'lucide-react'
 import { useState } from 'react'
 
-export default function Navbar({ isAdmin = false }: { isAdmin?: boolean }) {
+export default function Navbar({ isAdmin = false, isLoggedIn = false }: { isAdmin?: boolean; isLoggedIn?: boolean }) {
     const count = useCart((s) => s.items.reduce((n, i) => n + i.quantity, 0))
     const [open, setOpen] = useState(false)
 
@@ -46,10 +46,17 @@ export default function Navbar({ isAdmin = false }: { isAdmin?: boolean }) {
                                 <span className="hidden md:inline">Admin</span>
                             </Link>
                         )}
-                        <Link href="/account" className="inline-flex items-center gap-2 hover:opacity-80 transition">
-                            <User size={18} />
-                            <span className="hidden md:inline">Mon compte</span>
-                        </Link>
+                        {isLoggedIn ? (
+                            <Link href="/account" className="inline-flex items-center gap-2 hover:opacity-80 transition">
+                                <User size={18} />
+                                <span className="hidden md:inline">Mon compte</span>
+                            </Link>
+                        ) : (
+                            <Link href="/login" className="inline-flex items-center gap-2 hover:opacity-80 transition">
+                                <User size={18} />
+                                <span className="hidden md:inline">Se connecter</span>
+                            </Link>
+                        )}
                         <Link href="/cart" className="hover:opacity-80 relative inline-flex items-center gap-2">
                             <ShoppingBag size={18} />
                             <span className="hidden md:inline">Panier</span>
@@ -100,9 +107,15 @@ export default function Navbar({ isAdmin = false }: { isAdmin?: boolean }) {
                                     Enfant
                                 </Link>
                             </div>
-                            <Link href="/account/settings" className="block px-4 py-3 hover:bg-neutral-100" onClick={() => setOpen(false)}>
-                                Paramètres
-                            </Link>
+                            {isLoggedIn ? (
+                                <Link href="/account" className="block px-4 py-3 hover:bg-neutral-100" onClick={() => setOpen(false)}>
+                                    Mon compte
+                                </Link>
+                            ) : (
+                                <Link href="/login" className="block px-4 py-3 hover:bg-neutral-100" onClick={() => setOpen(false)}>
+                                    Se connecter
+                                </Link>
+                            )}
                             <Link href="/about" className="block px-4 py-3 hover:bg-neutral-100" onClick={() => setOpen(false)}>
                                 À propos
                             </Link>
