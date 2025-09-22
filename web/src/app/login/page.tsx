@@ -1,11 +1,14 @@
 'use client'
 import { FormEvent, useState } from 'react'
+import Link from 'next/link'
 import { supabase } from '@/utils/supabase/client'
 
 export default function LoginPage() {
   const [email, setEmail] = useState('')
   const [credEmail, setCredEmail] = useState('')
   const [credPassword, setCredPassword] = useState('')
+  const [credLoading, setCredLoading] = useState(false)
+  const [credMessage, setCredMessage] = useState<string | null>(null)
 
   const sendMagicLink = async (e: FormEvent) => {
     e.preventDefault()
@@ -15,11 +18,20 @@ export default function LoginPage() {
 
   const signInWithCredentials = async (e: FormEvent) => {
     e.preventDefault()
-    if (!credEmail || !credPassword) return
-    const { error } = await supabase.auth.signInWithPassword({ email: credEmail, password: credPassword })
-    if (!error) {
-      window.location.href = '/'
+    setCredMessage(null)
+    if (!credEmail || !credPassword) {
+      setCredMessage('Email et mot de passe requis.')
+      return
     }
+    setCredLoading(true)
+    const { error } = await supabase.auth.signInWithPassword({ email: credEmail.trim(), password: credPassword })
+    setCredLoading(false)
+    if (error) {
+      console.error('Login error:', error)
+      setCredMessage(error.message)
+      return
+    }
+    window.location.href = '/account'
   }
 
   const signInWithGoogleSupabase = async () => {
@@ -60,11 +72,16 @@ export default function LoginPage() {
           placeholder="••••••••"
           className="w-full rounded border px-3 py-2"
         />
-        <button type="submit" className="w-full rounded-full bg-zinc-800 text-white px-4 py-2 hover:opacity-90">
-          Se connecter
+        <button disabled={credLoading} type="submit" className="w-full rounded-full bg-zinc-800 text-white px-4 py-2 hover:opacity-90 disabled:opacity-50">
+          {credLoading ? 'Connexion…' : 'Se connecter'}
         </button>
-        <p className="text-xs text-zinc-500">Astuce: définis AUTH_CREDENTIALS_EMAIL et AUTH_CREDENTIALS_PASSWORD dans .env pour activer ce mode, ou CREDENTIALS_DEV_ACCEPT_ANY=1 en dev.</p>
+        {credMessage && <p className="text-sm text-red-600">{credMessage}</p>}
       </form>
+
+      <p className="text-sm text-zinc-600">
+        Pas de compte ?{' '}
+        <Link href="/register" className="underline">Créer un compte</Link>
+      </p>
     </section>
   )
 }
