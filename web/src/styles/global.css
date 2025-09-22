@@ -1,0 +1,12 @@
+/* src/styles/globals.css */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root{
+--radius: 1rem; /* 16px ~ rounded-2xl vibe */
+}
+
+*{outline-color: theme(colors.blue.600)}
+
+html, body{ height:100%; }

@@ -1,7 +1,12 @@
-import type { NextConfig } from "next";
+import path from 'path';
 
-const nextConfig: NextConfig = {
-  /* config options here */
+const nextConfig = {
+  images: {
+    domains: [
+      'contents.mediadecathlon.com',
+      'commons.wikimedia.org',
+    ],
+  },
+  outputFileTracingRoot: path.join(__dirname, '../'),
 };
-
-export default nextConfig;
+module.exports = nextConfig;
