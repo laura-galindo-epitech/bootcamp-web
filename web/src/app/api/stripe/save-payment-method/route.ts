@@ -6,7 +6,7 @@ export async function POST(req: Request) {
   if (!secret) {
     return NextResponse.json({ error: 'STRIPE_SECRET_KEY missing' }, { status: 500 })
   }
-  const stripe = new Stripe(secret, { apiVersion: '2024-06-20' })
+  const stripe = new Stripe(secret)
   const body = await req.json().catch(() => ({}))
   const id = body?.paymentMethodId as string | undefined
   if (!id) return NextResponse.json({ error: 'paymentMethodId required' }, { status: 400 })
@@ -24,4 +24,3 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: e?.message || 'Stripe error' }, { status: 500 })
   }
 }
-

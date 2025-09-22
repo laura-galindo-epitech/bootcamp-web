@@ -1,8 +1,14 @@
 @import "tailwindcss";
 
+/* Light by default; dark is applied when .dark is present on <html> */
 :root {
   --background: #ffffff;
   --foreground: #171717;
+}
+
+html.dark {
+  --background: #0a0a0a;
+  --foreground: #ededed;
 }
 
 @theme inline {
@@ -12,8 +18,9 @@
   --font-mono: var(--font-geist-mono);
 }
 
+/* Fallback to system preference when no explicit theme was chosen */
 @media (prefers-color-scheme: dark) {
-  :root {
+  :root:not(.dark) {
     --background: #0a0a0a;
     --foreground: #ededed;
   }
