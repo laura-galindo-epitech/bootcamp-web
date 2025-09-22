@@ -1,7 +1,7 @@
 'use client';
 import { useState, useEffect } from 'react';
 import { supabase } from '@/utils/supabase/client';
-import { useRouter } from 'next/navigation';
+import { useRouter, useParams } from 'next/navigation';
 import Link from 'next/link';
 
 // Fonction pour convertir une chaîne en slug
@@ -42,7 +42,8 @@ interface Product {
   is_active: boolean;
 }
 
-export default function EditProductPage({ params }: { params: { id: string } }) {
+export default function EditProductPage() {
+  const params = useParams();
   const [name, setName] = useState('');
   const [slug, setSlug] = useState('');
   const [description, setDescription] = useState('');
@@ -56,7 +57,16 @@ export default function EditProductPage({ params }: { params: { id: string } }) 
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
 
+  // Vérifiez que params.id est défini et valide
+  const productId = Array.isArray(params.id) ? params.id[0] : params.id;
+
   useEffect(() => {
+    if (!productId) {
+      setError('ID du produit non trouvé.');
+      setIsLoading(false);
+      return;
+    }
+
     const fetchProductAndBrands = async () => {
       try {
         // Récupérer les marques
@@ -89,7 +99,7 @@ export default function EditProductPage({ params }: { params: { id: string } }) 
         const { data: productData, error: productError } = await supabase
           .from('products')
           .select('*')
-          .eq('id', params.id)
+          .eq('id', productId)
           .maybeSingle();
 
         if (productError) {
@@ -108,7 +118,7 @@ export default function EditProductPage({ params }: { params: { id: string } }) 
         const { data: variantsData, error: variantsError } = await supabase
           .from('product_variants')
           .select('*')
-          .eq('product_id', params.id);
+          .eq('product_id', productId);
 
         if (variantsError) {
           throw variantsError;
@@ -143,7 +153,7 @@ export default function EditProductPage({ params }: { params: { id: string } }) 
       }
     };
     fetchProductAndBrands();
-  }, [params.id]);
+  }, [productId]);
 
   // Générer automatiquement le slug à partir du nom
   useEffect(() => {
@@ -191,6 +201,10 @@ export default function EditProductPage({ params }: { params: { id: string } }) 
         setError('Les champs "Taille EU" et "Genre" sont obligatoires pour chaque variant.');
         return false;
       }
+      if (variant.isNewColor && !variant.color_family) {
+        setError('Veuillez entrer une nouvelle couleur pour le variant.');
+        return false;
+      }
     }
     return true;
   };
@@ -216,7 +230,7 @@ export default function EditProductPage({ params }: { params: { id: string } }) 
           brand_id: brandId,
           is_active: isActive,
         })
-        .eq('id', params.id);
+        .eq('id', productId);
 
       if (productError) {
         throw productError;
@@ -284,7 +298,7 @@ export default function EditProductPage({ params }: { params: { id: string } }) 
           const { data: variantData, error: variantError } = await supabase
             .from('product_variants')
             .insert([{
-              product_id: params.id,
+              product_id: productId,
               color_family: variant.color_family,
               price: variant.price,
               gender: variant.gender,
@@ -325,6 +339,14 @@ export default function EditProductPage({ params }: { params: { id: string } }) 
     }
   };
 
+  if (isLoading) {
+    return <div>Chargement...</div>;
+  }
+
+  if (error) {
+    return <div className="text-red-500">{error}</div>;
+  }
+
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="flex justify-between items-center mb-6">
@@ -335,7 +357,6 @@ export default function EditProductPage({ params }: { params: { id: string } }) 
           </Link>
         </div>
       </div>
-      {error && <p className="text-red-500 mb-4">{error}</p>}
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
           <label className="block mb-1">Nom</label>
@@ -440,6 +461,7 @@ export default function EditProductPage({ params }: { params: { id: string } }) 
                       onChange={(e) => handleVariantChange(index, 'color_family', e.target.value)}
                       className="w-full p-2 border rounded mt-2"
                       placeholder="Entrez une nouvelle couleur"
+                      required
                     />
                   )}
                 </div>
