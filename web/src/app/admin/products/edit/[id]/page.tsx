@@ -29,6 +29,7 @@ interface ProductVariant {
   image_url: string;
   alt_text: string;
   is_primary: boolean;
+  isNewColor?: boolean;
 }
 
 interface Product {
@@ -70,11 +71,18 @@ export default function EditProductPage({ params }: { params: { id: string } }) 
         // Récupérer les familles de couleur existantes
         const { data: colorFamiliesData, error: colorFamiliesError } = await supabase
           .from('product_variants')
-          .select('color_family');
+          .select('color_family')
+          .not('color_family', 'is', null);
+
         if (colorFamiliesError) {
           throw colorFamiliesError;
         }
-        const uniqueColorFamilies = [...new Set(colorFamiliesData.map(item => item.color_family))];
+
+        // Filtrer les valeurs "new" et les valeurs vides
+        const uniqueColorFamilies = [...new Set(colorFamiliesData
+          .map(item => item.color_family)
+          .filter(color => color && color !== 'new'))];
+
         setColorFamilies(uniqueColorFamilies);
 
         // Récupérer le produit
@@ -83,6 +91,7 @@ export default function EditProductPage({ params }: { params: { id: string } }) 
           .select('*')
           .eq('id', params.id)
           .maybeSingle();
+
         if (productError) {
           throw productError;
         }
@@ -100,6 +109,7 @@ export default function EditProductPage({ params }: { params: { id: string } }) 
           .from('product_variants')
           .select('*')
           .eq('product_id', params.id);
+
         if (variantsError) {
           throw variantsError;
         }
@@ -110,6 +120,7 @@ export default function EditProductPage({ params }: { params: { id: string } }) 
               .from('product_images')
               .select('*')
               .eq('product_variant_id', variant.id);
+
             if (imagesError) {
               throw imagesError;
             }
@@ -119,6 +130,7 @@ export default function EditProductPage({ params }: { params: { id: string } }) 
               image_url: image.image_url,
               alt_text: image.alt_text,
               is_primary: image.is_primary,
+              isNewColor: false,
             };
           }));
           setVariants(variantsWithImages);
@@ -141,7 +153,7 @@ export default function EditProductPage({ params }: { params: { id: string } }) 
   }, [name, slug]);
 
   const handleAddVariant = () => {
-    setVariants([...variants, { color_family: '', price: 0, gender: '', sku: '', eu_size: 0, image_url: '', alt_text: '', is_primary: false }]);
+    setVariants([...variants, { color_family: '', price: 0, gender: '', sku: '', eu_size: 0, image_url: '', alt_text: '', is_primary: false, isNewColor: false }]);
   };
 
   const handleRemoveVariant = (index: number) => {
@@ -152,15 +164,16 @@ export default function EditProductPage({ params }: { params: { id: string } }) 
 
   const handleVariantChange = (index: number, field: keyof ProductVariant, value: string | number | boolean) => {
     const newVariants = [...variants];
-    newVariants[index][field] = value as never;
-    // Si is_primary est coché, désactiver is_primary pour les autres variants
-    if (field === 'is_primary' && value === true) {
-      newVariants.forEach((variant, i) => {
-        if (i !== index) {
-          variant.is_primary = false;
-        }
-      });
+
+    if (field === 'color_family' && value === 'Nouvelle couleur...') {
+      newVariants[index].color_family = '';
+      newVariants[index].isNewColor = true;
+    } else if (field === 'color_family' && newVariants[index].isNewColor && typeof value === 'string') {
+      newVariants[index].color_family = value;
+    } else {
+      newVariants[index][field] = value as never;
     }
+
     setVariants(newVariants);
   };
 
@@ -204,6 +217,7 @@ export default function EditProductPage({ params }: { params: { id: string } }) 
           is_active: isActive,
         })
         .eq('id', params.id);
+
       if (productError) {
         throw productError;
       }
@@ -223,6 +237,7 @@ export default function EditProductPage({ params }: { params: { id: string } }) 
               image_url: variant.image_url,
             })
             .eq('id', variant.id);
+
           if (variantError) {
             throw variantError;
           }
@@ -232,9 +247,11 @@ export default function EditProductPage({ params }: { params: { id: string } }) 
             .from('product_images')
             .select('*')
             .eq('product_variant_id', variant.id);
+
           if (existingImagesError) {
             throw existingImagesError;
           }
+
           if (existingImages && existingImages.length > 0) {
             const { error: imageError } = await supabase
               .from('product_images')
@@ -244,6 +261,7 @@ export default function EditProductPage({ params }: { params: { id: string } }) 
                 is_primary: variant.is_primary,
               })
               .eq('id', existingImages[0].id);
+
             if (imageError) {
               throw imageError;
             }
@@ -256,6 +274,7 @@ export default function EditProductPage({ params }: { params: { id: string } }) 
                 alt_text: variant.alt_text,
                 is_primary: variant.is_primary,
               }]);
+
             if (imageError) {
               throw imageError;
             }
@@ -275,6 +294,7 @@ export default function EditProductPage({ params }: { params: { id: string } }) 
             }])
             .select()
             .single();
+
           if (variantError) {
             throw variantError;
           }
@@ -289,6 +309,7 @@ export default function EditProductPage({ params }: { params: { id: string } }) 
                 alt_text: variant.alt_text,
                 is_primary: variant.is_primary,
               }]);
+
             if (imageError) {
               throw imageError;
             }
@@ -391,12 +412,14 @@ export default function EditProductPage({ params }: { params: { id: string } }) 
                 <div>
                   <label className="block mb-1">Famille de couleur</label>
                   <select
-                    value={variant.color_family === '' ? 'new' : variant.color_family}
+                    value={variant.isNewColor ? 'Nouvelle couleur...' : variant.color_family}
                     onChange={(e) => {
-                      if (e.target.value === 'new') {
+                      if (e.target.value === 'Nouvelle couleur...') {
                         handleVariantChange(index, 'color_family', '');
+                        handleVariantChange(index, 'isNewColor', true);
                       } else {
                         handleVariantChange(index, 'color_family', e.target.value);
+                        handleVariantChange(index, 'isNewColor', false);
                       }
                     }}
                     className="w-full p-2 border rounded"
@@ -408,9 +431,9 @@ export default function EditProductPage({ params }: { params: { id: string } }) 
                         {color}
                       </option>
                     ))}
-                    <option value="new">Nouvelle couleur...</option>
+                    <option value="Nouvelle couleur...">Nouvelle couleur...</option>
                   </select>
-                  {(variant.color_family === '' || variant.color_family === 'new') && (
+                  {variant.isNewColor && (
                     <input
                       type="text"
                       value={variant.color_family}

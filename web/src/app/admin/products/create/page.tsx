@@ -22,9 +22,6 @@ const generateSku = (productId: number, color: string, size: number, gender: str
   return `${productId}-${colorCode}-${sizeCode}-${genderCode}`;
 };
 
-// Valeurs autorisées pour le motif de stock
-const stockReasons = ['initial', 'restock', 'sale', 'return', 'damage', 'adjustment'];
-
 interface Brand {
   id: number;
   name: string;
@@ -40,6 +37,7 @@ interface ProductVariant {
   alt_text: string;
   is_primary: boolean;
   stock_quantity: number;
+  isNewColor?: boolean;
 }
 
 export default function CreateProductPage() {
@@ -52,7 +50,7 @@ export default function CreateProductPage() {
   const [brands, setBrands] = useState<Brand[]>([]);
   const [colorFamilies, setColorFamilies] = useState<string[]>([]);
   const [variants, setVariants] = useState<ProductVariant[]>([
-    { color_family: '', price: 0, gender: '', sku: '', eu_size: 0, image_url: '', alt_text: '', is_primary: false, stock_quantity: 0 }
+    { color_family: '', price: 0, gender: '', sku: '', eu_size: 0, image_url: '', alt_text: '', is_primary: false, stock_quantity: 0, isNewColor: false }
   ]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
@@ -103,11 +101,18 @@ export default function CreateProductPage() {
         // Récupérer les familles de couleur existantes
         const { data: colorFamiliesData, error: colorFamiliesError } = await supabase
           .from('product_variants')
-          .select('color_family');
+          .select('color_family')
+          .not('color_family', 'is', null); // Exclure les valeurs NULL
+
         if (colorFamiliesError) {
           throw new Error(`Erreur lors de la récupération des familles de couleur: ${colorFamiliesError.message}`);
         }
-        const uniqueColorFamilies = [...new Set(colorFamiliesData.map(item => item.color_family))];
+        
+        // Filtrer les valeurs "new" et les valeurs vides
+        const uniqueColorFamilies = [...new Set(colorFamiliesData
+          .map(item => item.color_family)
+          .filter(color => color && color !== 'new'))];
+        
         setColorFamilies(uniqueColorFamilies);
       } catch (err) {
         setError(err instanceof Error ? err.message : 'Une erreur inconnue est survenue.');
@@ -127,7 +132,7 @@ export default function CreateProductPage() {
   }, [name, slug]);
 
   const handleAddVariant = () => {
-    setVariants([...variants, { color_family: '', price: 0, gender: '', sku: '', eu_size: 0, image_url: '', alt_text: '', is_primary: false, stock_quantity: 0 }]);
+    setVariants([...variants, { color_family: '', price: 0, gender: '', sku: '', eu_size: 0, image_url: '', alt_text: '', is_primary: false, stock_quantity: 0, isNewColor: false }]);
   };
 
   const handleRemoveVariant = (index: number) => {
@@ -138,15 +143,16 @@ export default function CreateProductPage() {
 
   const handleVariantChange = (index: number, field: keyof ProductVariant, value: string | number | boolean) => {
     const newVariants = [...variants];
-    newVariants[index][field] = value as never;
-    // Si is_primary est coché, désactiver is_primary pour les autres variants
-    if (field === 'is_primary' && value === true) {
-      newVariants.forEach((variant, i) => {
-        if (i !== index) {
-          variant.is_primary = false;
-        }
-      });
+
+    if (field === 'color_family' && value === 'Nouvelle couleur...') {
+      newVariants[index].color_family = '';
+      newVariants[index].isNewColor = true;
+    } else if (field === 'color_family' && newVariants[index].isNewColor && typeof value === 'string') {
+      newVariants[index].color_family = value;
+    } else {
+      newVariants[index][field] = value as never;
     }
+
     setVariants(newVariants);
   };
 
@@ -375,12 +381,14 @@ export default function CreateProductPage() {
                 <div>
                   <label className="block mb-1">Famille de couleur</label>
                   <select
-                    value={variant.color_family === '' ? 'new' : variant.color_family}
+                    value={variant.isNewColor ? 'Nouvelle couleur...' : variant.color_family}
                     onChange={(e) => {
-                      if (e.target.value === 'new') {
+                      if (e.target.value === 'Nouvelle couleur...') {
                         handleVariantChange(index, 'color_family', '');
+                        handleVariantChange(index, 'isNewColor', true);
                       } else {
                         handleVariantChange(index, 'color_family', e.target.value);
+                        handleVariantChange(index, 'isNewColor', false);
                       }
                     }}
                     className="w-full p-2 border rounded"
@@ -392,9 +400,9 @@ export default function CreateProductPage() {
                         {color}
                       </option>
                     ))}
-                    <option value="new">Nouvelle couleur...</option>
+                    <option value="Nouvelle couleur...">Nouvelle couleur...</option>
                   </select>
-                  {(variant.color_family === '' || variant.color_family === 'new') && (
+                  {variant.isNewColor && (
                     <input
                       type="text"
                       value={variant.color_family}
