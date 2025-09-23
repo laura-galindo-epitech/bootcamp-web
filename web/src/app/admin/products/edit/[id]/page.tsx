@@ -559,7 +559,7 @@ export default function EditProductPage() {
           </button>
         </div>
         <div className="flex justify-between">
-          <button type="submit" className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600" disabled={isLoading}>
+          <button type="submit" className="bg-blue-700 text-white px-4 py-2 rounded hover:bg-blue-600" disabled={isLoading}>
             {isLoading ? 'Enregistrement...' : 'Enregistrer'}
           </button>
           <Link href="/admin/stocks" className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600">
