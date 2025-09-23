@@ -173,8 +173,8 @@ export default function CreateProductPage() {
         setError('Les champs "Taille EU" et "Genre" sont obligatoires pour chaque variant.');
         return false;
       }
-      if (variant.gender && !['man', 'woman', 'child'].includes(variant.gender)) {
-        setError('Le genre doit être "Homme", "Femme" ou "Enfant".');
+      if (variant.gender && !['men', 'women', 'child'].includes(variant.gender)) {
+        setError('Le genre doit être "Hommes", "Femmes" ou "Enfant".');
         return false;
       }
     }
@@ -414,8 +414,8 @@ export default function CreateProductPage() {
                     required
                   >
                     <option value="">Sélectionnez un genre</option>
-                    <option value="man">Homme</option>
-                    <option value="woman">Femme</option>
+                    <option value="men">Hommes</option>
+                    <option value="women">Femmes</option>
                     <option value="child">Enfant</option>
                   </select>
                 </div>

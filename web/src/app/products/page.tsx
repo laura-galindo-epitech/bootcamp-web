@@ -98,17 +98,6 @@ export default function ProductsPage() {
         throw new Error('Aucune donnée retournée par la requête.');
       }
 
-<<<<<<< HEAD
-      // Transformer les données pour correspondre à l'interface Product
-      const formattedProducts = data.map((product) => {
-        const brandRaw = (product as any).brand
-        const brandObj = Array.isArray(brandRaw) ? brandRaw[0] : brandRaw
-        const brand = brandObj ? {
-          id: brandObj.id,
-          name: brandObj.name,
-          logo_url: brandObj.logo_url
-        } : { id: 0, name: '', logo_url: null };
-=======
       // Récupérer les images et les variants pour chaque produit
       const productsWithDetails = await Promise.all(
         productsData.map(async (product) => {
@@ -117,7 +106,6 @@ export default function ProductsPage() {
             .from('product_images')
             .select('id, image_url, alt_text, is_primary')
             .eq('product_variant_id', product.id);
->>>>>>> Laura
 
           if (imagesError) {
             console.error(`Erreur lors de la récupération des images pour le produit ${product.id}: ${imagesError.message}`);
