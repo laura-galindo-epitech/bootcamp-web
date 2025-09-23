@@ -13,7 +13,7 @@ export const fetchDistinctColorFamilies = async (): Promise<string[]> => {
       return [];
     }
 
-    // Vérifier que `data` est bien un tableau
+    // Vérifier que "data" est bien un tableau
     if (!Array.isArray(data)) {
       console.error('Les données retournées ne sont pas un tableau.');
       return [];

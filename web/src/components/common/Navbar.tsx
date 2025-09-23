@@ -13,7 +13,7 @@ export default function Navbar({ isAdmin = false, isLoggedIn = false }: { isAdmi
 
     useEffect(() => {
         let mounted = true
-        // Hydrate from Supabase client (local storage based)
+        // Supabase client / local storage based
         supabase.auth.getUser().then(({ data: { user } }) => {
             if (!mounted) return
             setLoggedIn(!!user)
@@ -30,7 +30,7 @@ export default function Navbar({ isAdmin = false, isLoggedIn = false }: { isAdmi
     return (
         <header className="sticky top-0 z-40 bg-white/70 dark:bg-zinc-900/70 backdrop-blur">
             <div className="mx-auto max-w-6xl px-4 h-14 flex items-center justify-between relative">
-                {/* Burger (mobile only) */}
+                {/* Burger Menu (mobile) */}
                 <button
                     type="button"
                     aria-label="Ouvrir le menu"
@@ -45,7 +45,7 @@ export default function Navbar({ isAdmin = false, isLoggedIn = false }: { isAdmi
                 {/* Logo + Produits + A propos (desktop) */}
                 <div className='flex items-center gap-6'>
                     <Link href="/" className="font-semibold tracking-tight text-2xl">OneShoe</Link>
-                    {/* Desktop: dropdown hover for Nos produits */}
+                    {/* Desktop: dropdown hover Nos produits */}
                     <div className="relative hidden md:block group">
                         <Link href="/products" aria-haspopup="menu" className="inline-block font-bold text-blue-700 hover:opacity-80 transition text-sm">Nos produits</Link>
                         <div className="absolute left-0 top-full pt-2 hidden group-hover:block z-50 rounded-md bg-white/95 dark:bg-zinc-900/95 backdrop-blur shadow-lg min-w-[200px] py-2">
@@ -115,7 +115,7 @@ export default function Navbar({ isAdmin = false, isLoggedIn = false }: { isAdmi
                             <Link href="/products" className="block px-4 py-3 font-bold text-blue-700 hover:bg-neutral-100 dark:hover:bg-zinc-800" onClick={() => setOpen(false)}>
                                 Nos produits
                             </Link>
-                            {/* Mobile: sub-links always visible under Nos produits */}
+                            {/* Mobile: sous-catgéorie visible sous Nos produits */}
                             <div className="mt-1">
                                 <Link href="/products?gender=men" className="block pl-8 py-2 text-sm text-zinc-700 dark:text-zinc-200 hover:bg-neutral-100 dark:hover:bg-zinc-800" onClick={() => setOpen(false)}>
                                     Homme

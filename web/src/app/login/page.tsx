@@ -12,8 +12,6 @@ export default function LoginPage() {
 
   const sendMagicLink = async (e: FormEvent) => {
     e.preventDefault()
-    // Optionnel: si tu ajoutes SMTP côté Supabase, tu peux déclencher un magic link ici
-    // await supabase.auth.signInWithOtp({ email, options: { emailRedirectTo: `${location.origin}/auth/callback` } })
   }
 
   const signInWithCredentials = async (e: FormEvent) => {

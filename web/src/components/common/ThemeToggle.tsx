@@ -21,10 +21,8 @@ export default function ThemeToggle() {
   }, [theme])
 
   useEffect(() => {
-    // Sync with current DOM class on first mount to avoid mismatch
     const isDark = document.documentElement.classList.contains('dark')
     setTheme(isDark ? 'dark' : 'light')
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   useEffect(() => {

@@ -27,7 +27,7 @@ function InnerForm({ onSaved }: { onSaved?: (info: any) => void }) {
       setLoading(false)
       return
     }
-    // Récupérer les métadonnées côté serveur (sans rien stocker pour l’instant)
+    // Récupérer les métadonnées côté serveur sans stockage
     const res = await fetch('/api/stripe/save-payment-method', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },

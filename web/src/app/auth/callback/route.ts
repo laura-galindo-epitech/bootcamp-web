@@ -9,7 +9,7 @@ export async function GET(request: Request) {
   const next = url.searchParams.get('next') || '/account'
 
   const supabase = await createClient()
-  // Échange le code présent dans l'URL (PKCE) contre une session; pose les cookies côté serveur
+  // Échange le code présent dans l'URL (PKCE) contre une session et cookies côté serveur
   await supabase.auth.exchangeCodeForSession(url.toString())
 
   return NextResponse.redirect(new URL(next, origin))

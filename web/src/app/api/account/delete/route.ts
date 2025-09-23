@@ -8,7 +8,7 @@ export async function POST(request: Request) {
   const supabase = await createClient()
   let { data: { user } } = await supabase.auth.getUser()
 
-  // 2) Fallback: Bearer token envoyé par le client
+  // 2) Fallback: token envoyé par le client
   if (!user) {
     const authHeader = request.headers.get('authorization') || ''
     const token = authHeader.toLowerCase().startsWith('bearer ')
@@ -32,17 +32,14 @@ export async function POST(request: Request) {
     // Try to find app user id (public.users)
     let appUserId: number | null = null
 
-    // Preferred: via auth_uid column if present
     try {
       const { data } = await supabaseAdmin
         .from('users')
-        // @ts-ignore - auth_uid may not exist in all schemas
         .select('id')
         .eq('auth_uid', user.id)
         .maybeSingle()
       if (data?.id) appUserId = data.id
     } catch (_) {
-      // ignore
     }
 
     // Fallback: via email
@@ -55,14 +52,11 @@ export async function POST(request: Request) {
       if (data?.id) appUserId = data.id
     }
 
-    // Delete app data (best effort). Adjust tables to your schema as needed.
     if (appUserId != null) {
-      // Child tables first if you don't have ON DELETE CASCADE
       await supabaseAdmin.from('shopping_carts').delete().eq('user_id', appUserId)
       await supabaseAdmin.from('product_reviews').delete().eq('user_id', appUserId)
       await supabaseAdmin.from('user_sessions').delete().eq('user_id', appUserId)
       await supabaseAdmin.from('orders').delete().eq('user_id', appUserId)
-      // Finally delete user row
       await supabaseAdmin.from('users').delete().eq('id', appUserId)
     }
 

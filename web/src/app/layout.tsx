@@ -15,19 +15,19 @@ export const metadata: Metadata = {
   icons: { icon: '/favicon.ico' }
 }
 
-// Force le rendu dynamique pour lire les cookies Supabase à chaque requête
+// Lecture des cookies Supabase à chaque requête
 export const dynamic = 'force-dynamic'
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   const isLoggedIn = !!user
-  // Admin: on conserve seulement l'override dev pour l'instant
   const isAdmin = process.env.ADMIN_DEV_OVERRIDE === '1'
+  
   return (
     <html lang="fr" suppressHydrationWarning>
       <head>
-        {/* Set initial theme before paint to avoid flash and ensure toggle works reliably */}
+        {/* Implémenter le theme initial theme */}
         <Script id="theme-init" strategy="beforeInteractive">{`
           (function(){
             try {
