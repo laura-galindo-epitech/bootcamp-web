@@ -37,7 +37,6 @@ interface Product {
   name: string;
   slug: string;
   description: string | null;
-  base_price: number;
   brand_id: number;
   is_active: boolean;
 }
@@ -47,7 +46,6 @@ export default function EditProductPage() {
   const [name, setName] = useState('');
   const [slug, setSlug] = useState('');
   const [description, setDescription] = useState('');
-  const [basePrice, setBasePrice] = useState(0);
   const [brandId, setBrandId] = useState<number | null>(null);
   const [isActive, setIsActive] = useState(true);
   const [brands, setBrands] = useState<Brand[]>([]);
@@ -109,7 +107,6 @@ export default function EditProductPage() {
           setName(productData.name);
           setSlug(productData.slug);
           setDescription(productData.description || '');
-          setBasePrice(productData.base_price);
           setBrandId(productData.brand_id);
           setIsActive(productData.is_active);
         }
@@ -188,10 +185,6 @@ export default function EditProductPage() {
   };
 
   const validateForm = () => {
-    if (basePrice <= 0) {
-      setError('Le prix de base doit être supérieur à 0.');
-      return false;
-    }
     for (const variant of variants) {
       if (variant.price <= 0) {
         setError('Le prix de chaque variant doit être supérieur à 0.');
@@ -226,7 +219,6 @@ export default function EditProductPage() {
           name,
           slug: finalSlug,
           description,
-          base_price: basePrice,
           brand_id: brandId,
           is_active: isActive,
         })
@@ -385,19 +377,6 @@ export default function EditProductPage() {
             onChange={(e) => setDescription(e.target.value)}
             className="w-full p-2 border rounded"
           />
-        </div>
-        <div>
-          <label className="block mb-1">Prix de base</label>
-          <input
-            type="number"
-            value={basePrice}
-            onChange={(e) => setBasePrice(Number(e.target.value))}
-            className="w-full p-2 border rounded"
-            required
-            min="0.01"
-            step="0.01"
-          />
-          {basePrice <= 0 && <p className="text-red-500 text-sm mt-1">Le prix de base doit être supérieur à 0.</p>}
         </div>
         <div>
           <label className="block mb-1">Marque</label>

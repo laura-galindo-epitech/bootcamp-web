@@ -14,7 +14,6 @@ interface Product {
   name: string;
   slug: string;
   description: string;
-  base_price: number;
   brand_id: number;
   brand: Brand;
   is_active: boolean;
@@ -31,7 +30,7 @@ export default function AdminProductsPage() {
         const { data, error } = await supabase
           .from('products')
           .select(`
-            id, name, slug, description, base_price, brand_id, is_active,
+            id, name, slug, description, brand_id, is_active,
             brand:brands(id, name, logo_url)
           `);
         if (error) {
@@ -91,7 +90,6 @@ export default function AdminProductsPage() {
                 <th className="py-2 px-4 border">ID</th>
                 <th className="py-2 px-4 border">Nom</th>
                 <th className="py-2 px-4 border">Marque</th>
-                <th className="py-2 px-4 border">Prix</th>
                 <th className="py-2 px-4 border">Actif</th>
                 <th className="py-2 px-4 border">Actions</th>
               </tr>
@@ -102,7 +100,6 @@ export default function AdminProductsPage() {
                   <td className="py-2 px-4 border">{product.id}</td>
                   <td className="py-2 px-4 border">{product.name}</td>
                   <td className="py-2 px-4 border">{product.brand?.name}</td>
-                  <td className="py-2 px-4 border">{product.base_price.toFixed(2)} €</td>
                   <td className="py-2 px-4 border">
                     <span className={`px-2 py-1 rounded-full text-xs ${product.is_active ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
                       {product.is_active ? 'Actif' : 'Inactif'}

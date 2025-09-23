@@ -44,7 +44,6 @@ export default function CreateProductPage() {
   const [name, setName] = useState('');
   const [slug, setSlug] = useState('');
   const [description, setDescription] = useState('');
-  const [basePrice, setBasePrice] = useState(0);
   const [brandId, setBrandId] = useState<number | null>(null);
   const [isActive, setIsActive] = useState(true);
   const [brands, setBrands] = useState<Brand[]>([]);
@@ -157,10 +156,6 @@ export default function CreateProductPage() {
   };
 
   const validateForm = () => {
-    if (basePrice <= 0) {
-      setError('Le prix de base doit être supérieur à 0.');
-      return false;
-    }
     if (!brandId) {
       setError('Veuillez sélectionner une marque.');
       return false;
@@ -211,7 +206,6 @@ export default function CreateProductPage() {
           name,
           slug: finalSlug,
           description,
-          base_price: basePrice,
           brand_id: brandId,
           is_active: isActive,
         }])
@@ -332,19 +326,6 @@ export default function CreateProductPage() {
             onChange={(e) => setDescription(e.target.value)}
             className="w-full p-2 border rounded"
           />
-        </div>
-        <div>
-          <label className="block mb-1">Prix de base</label>
-          <input
-            type="number"
-            value={basePrice}
-            onChange={(e) => setBasePrice(Number(e.target.value))}
-            className="w-full p-2 border rounded"
-            required
-            min="0.01"
-            step="0.01"
-          />
-          {basePrice <= 0 && <p className="text-red-500 text-sm mt-1">Le prix de base doit être supérieur à 0.</p>}
         </div>
         <div>
           <label className="block mb-1">Marque</label>
