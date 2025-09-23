@@ -39,7 +39,6 @@ export default function ProductFilters({ value, onChange }: { value: Filters; on
     const loadData = async () => {
       setIsLoading(true);
       try {
-        // Récupérer les marques distinctes
         const { data: brandsData, error: brandsError } = await supabase
           .from('brands')
           .select('id, name');
@@ -50,7 +49,6 @@ export default function ProductFilters({ value, onChange }: { value: Filters; on
           setBrands(brandsData || []);
         }
 
-        // Récupérer les familles de couleurs distinctes
         const { data: colorsData, error: colorsError } = await supabase
           .from('product_variants')
           .select('color_family');
@@ -75,14 +73,9 @@ export default function ProductFilters({ value, onChange }: { value: Filters; on
     onChange({ ...value, gender: value.gender === gender ? undefined : gender });
   };
 
-  const handleBrandChange = (brandId: number) => {
-    const brandName = brands.find(brand => brand.id === brandId)?.name;
-    if (!brandName) return;
-
-    const updatedBrands = value.brands?.includes(brandName)
-      ? value.brands?.filter((b) => b !== brandName)
-      : [...(value.brands || []), brandName];
-    onChange({ ...value, brands: updatedBrands });
+  const handleBrandChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const selectedBrandName = e.target.value;
+    onChange({ ...value, brands: selectedBrandName ? [selectedBrandName] : [] });
   };
 
   const handlePriceRangeChange = (range: string) => {
@@ -102,7 +95,6 @@ export default function ProductFilters({ value, onChange }: { value: Filters; on
 
   return (
     <div className="flex flex-col gap-6">
-      {/* Filtre par genre (Homme/Femme/Enfant) */}
       <div className="flex flex-wrap items-center gap-3">
         <div className="flex items-center gap-2">
           {genders.map((g) => (
@@ -119,25 +111,25 @@ export default function ProductFilters({ value, onChange }: { value: Filters; on
         </div>
       </div>
 
-      {/* Filtre par marque */}
       <div className="filter-group">
-        <label className="font-medium">Marque</label>
-        <div className="flex flex-wrap gap-2 mt-2">
-          {brands.map((brand) => (
-            <button
-              key={brand.id}
-              onClick={() => handleBrandChange(brand.id)}
-              className={`rounded-full border px-4 py-1.5 text-sm ${
-                value.brands?.includes(brand.name) ? 'bg-black text-white' : 'hover:bg-zinc-50'
-              }`}
-            >
-              {brand.name}
-            </button>
-          ))}
+        <label htmlFor="brand-select" className="font-medium">Marque</label>
+        <div className="mt-2">
+          <select
+            id="brand-select"
+            className="w-full rounded-lg border px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            onChange={handleBrandChange}
+            value={value.brands?.[0] || ''}
+          >
+            <option value="">Toutes les marques</option>
+            {brands.map((brand) => (
+              <option key={brand.id} value={brand.name}>
+                {brand.name}
+              </option>
+            ))}
+          </select>
         </div>
       </div>
 
-      {/* Filtre par prix */}
       <div className="filter-group">
         <label className="font-medium">Prix</label>
         <div className="flex flex-wrap gap-2 mt-2">
@@ -155,7 +147,6 @@ export default function ProductFilters({ value, onChange }: { value: Filters; on
         </div>
       </div>
 
-      {/* Filtre par nuance de couleur */}
       <div className="filter-group">
         <label className="font-medium">Couleur</label>
         <div className="flex flex-wrap gap-2 mt-2">

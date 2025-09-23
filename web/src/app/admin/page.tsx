@@ -4,6 +4,7 @@ import { createClient } from '@/utils/supabase/server'
 import Link from 'next/link'
 import { Users, ShoppingCart, Euro, PiggyBank, Calendar, Plus } from 'lucide-react'
 
+
 export default async function AdminDashboardPage() {
   // En dev, si ADMIN_DEV_OVERRIDE=1, on laisse passer sans session
   if (process.env.ADMIN_DEV_OVERRIDE !== '1') {
@@ -21,6 +22,22 @@ export default async function AdminDashboardPage() {
 
   return (
     <Container className="py-8 space-y-6">
+      {/* Product and Stock Management Links */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-15">
+        <Link href="/admin/products" className="block">
+          <div className="bg-white p-6 rounded-lg shadow-md border border-gray-200 hover:shadow-lg transition-shadow">
+            <h2 className="text-xl font-semibold mb-2">Gestion des Produits</h2>
+            <p className="text-gray-600">Ajouter, modifier et gérer les produits</p>
+          </div>
+        </Link>
+        <Link href="/admin/stocks" className="block">
+          <div className="bg-white p-6 rounded-lg shadow-md border border-gray-200 hover:shadow-lg transition-shadow">
+            <h2 className="text-xl font-semibold mb-2">Gestion des Stocks</h2>
+            <p className="text-gray-600">Ajouter des mouvements de stocks</p>
+          </div>
+        </Link>
+      </div>
+
       {/* En-tête */}
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
@@ -28,13 +45,6 @@ export default async function AdminDashboardPage() {
           <p className="text-sm text-zinc-500">Vue d’ensemble des performances</p>
         </div>
         <div className="flex gap-2">
-          <Link
-            href="/admin/products/new"
-            className="inline-flex items-center gap-2 rounded-full border px-4 py-2 text-sm bg-black text-white hover:opacity-90"
-          >
-            <Plus size={16} />
-            Nouveau produit
-          </Link>
           <button className="inline-flex items-center gap-2 rounded-full border px-4 py-2 text-sm bg-white hover:bg-zinc-50">
             <Calendar size={16} />
             Période: Derniers 30 jours

@@ -19,23 +19,29 @@ interface Brand {
 }
 
 interface ProductVariant {
+  id: number;
+  product_id: number;
   color_family: string;
   price: number;
   gender?: string;
-}
-
-interface ProductImage {
-  image_url: string;
+  // Assuming a nested relation to get images
+  product_images: { id: number; image_url: string; alt_text: string; is_primary: boolean }[];
 }
 
 interface Product {
   id: number;
   name: string;
-  slug: string;
-  base_price: number;
+  model_slug: string;
   brand: Brand;
   product_images: ProductImage[];
   product_variants: ProductVariant[];
+}
+
+interface ProductImage {
+  id: number;
+  image_url: string;
+  alt_text: string;
+  is_primary: boolean;
 }
 
 export default function ProductsPage() {
@@ -50,88 +56,91 @@ export default function ProductsPage() {
     setError(null);
 
     try {
-      let query = supabase
+      // Step 1: Fetch all products and brands
+      const { data: productsData, error: productsError } = await supabase
         .from('products')
+        .select('id, name, model_slug, brand:brands(id, name, logo_url)');
+
+      if (productsError) {
+        throw new Error(`Erreur lors de la récupération des produits: ${productsError.message}`);
+      }
+
+      if (!productsData) {
+        setProducts([]);
+        setIsLoading(false);
+        return;
+      }
+
+      // Step 2: Fetch all product variants and their images
+      const { data: variantsData, error: variantsError } = await supabase
+        .from('product_variants')
         .select(`
-          id,
-          name,
-          slug,
-          base_price,
-          brand_id,
-          brand: brand_id (id, name, logo_url),
-          product_images: product_images(image_url),
-          product_variants: product_variants(color_family, price, gender)
+          id, product_id, color_family, price, gender,
+          product_images(id, image_url, alt_text, is_primary)
         `);
 
-      // Filtrer par terme de recherche
-      if (searchTerm) {
-        query = query.ilike('name', `%${searchTerm}%`);
+      if (variantsError) {
+        throw new Error(`Erreur lors de la récupération des variants: ${variantsError.message}`);
       }
 
-      if (filters.gender) {
-        query = query.contains('product_variants', { gender: filters.gender });
-      }
+      // Step 3: Combine and filter the data in-memory
+      const productsMap = new Map<number, Product>();
 
-      if (filters.brands && filters.brands.length > 0) {
-        const brandIdsQuery = await supabase
-          .from('brands')
-          .select('id')
-          .in('name', filters.brands);
-
-        if (brandIdsQuery.error) {
-          throw new Error(`Erreur lors de la récupération des IDs de marque: ${brandIdsQuery.error.message}`);
-        }
-
-        if (brandIdsQuery.data && brandIdsQuery.data.length > 0) {
-          const brandIds = brandIdsQuery.data.map(brand => brand.id);
-          query = query.in('brand_id', brandIds);
-        } else {
-          setProducts([]);
-          return;
-        }
-      }
-
-      if (filters.priceRange) {
-        const [minPrice, maxPrice] = filters.priceRange.split('-').map(Number);
-        query = query.gte('base_price', minPrice).lte('base_price', maxPrice || 1000);
-      }
-
-      if (filters.colorFamilies && filters.colorFamilies.length > 0) {
-        query = query.contains('product_variants', { color_family: filters.colorFamilies });
-      }
-
-      const { data, error } = await query;
-
-      if (error) {
-        throw new Error(`Erreur lors de la récupération des produits: ${error.message}`);
-      }
-
-      if (!data) {
-        throw new Error('Aucune donnée retournée par la requête.');
-      }
-
-      // Transformer les données pour correspondre à l'interface Product
-      const formattedProducts = data.map((product) => {
-        const brandRaw = (product as any).brand
-        const brandObj = Array.isArray(brandRaw) ? brandRaw[0] : brandRaw
-        const brand = brandObj ? {
-          id: brandObj.id,
-          name: brandObj.name,
-          logo_url: brandObj.logo_url
-        } : { id: 0, name: '', logo_url: null };
-
-        return {
-          id: product.id,
-          name: product.name,
-          slug: product.slug,
-          base_price: product.base_price,
-          brand: brand,
-          product_images: product.product_images || [],
-          product_variants: product.product_variants || [],
-        };
+      // Initialize the map with products
+      productsData.forEach(product => {
+        productsMap.set(product.id, {
+          ...product,
+          product_images: [],
+          product_variants: [],
+        });
       });
 
-      setProducts(formattedProducts);
+      // Populate variants and images for each product
+      (variantsData || []).forEach(variant => {
+        const product = productsMap.get(variant.product_id);
+        if (product) {
+          // Apply filters to variants
+          let shouldIncludeVariant = true;
+          if (filters.gender && variant.gender !== filters.gender) {
+            shouldIncludeVariant = false;
+          }
+          if (shouldIncludeVariant && filters.colorFamilies && filters.colorFamilies.length > 0 && !filters.colorFamilies.includes(variant.color_family)) {
+            shouldIncludeVariant = false;
+          }
+          if (shouldIncludeVariant && filters.priceRange) {
+            const [minPrice, maxPrice] = filters.priceRange.split('-').map(Number);
+            const variantPriceInCents = Math.round((variant.price ?? 0) * 100);
+            if (variantPriceInCents < minPrice * 100 || variantPriceInCents > (maxPrice || Infinity) * 100) {
+              shouldIncludeVariant = false;
+            }
+          }
+
+          if (shouldIncludeVariant) {
+            product.product_variants.push(variant as ProductVariant);
+            // Add images from this variant to the product's image list
+            (variant.product_images || []).forEach(img => {
+              if (!product.product_images.some(existingImg => existingImg.id === img.id)) {
+                product.product_images.push(img);
+              }
+            });
+          }
+        }
+      });
+
+      // Step 4: Final filtering of products
+      let filteredProducts = Array.from(productsMap.values()).filter(product => {
+        const productName = product.name.toLowerCase();
+        const searchTermLower = searchTerm.toLowerCase();
+        const matchesSearch = searchTermLower ? productName.includes(searchTermLower) : true;
+
+        const brandName = product.brand?.name || '';
+        const matchesBrand = (filters.brands && filters.brands.length > 0) ? filters.brands.includes(brandName) : true;
+
+        return matchesSearch && matchesBrand && product.product_variants.length > 0;
+      });
+
+      setProducts(filteredProducts);
+
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Une erreur inconnue est survenue.');
       console.error('Erreur détaillée :', err);

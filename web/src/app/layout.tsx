@@ -6,6 +6,7 @@ import Navbar from '../components/common/Navbar'
 import Footer from '@/components/common/Footer'
 import { Inter } from 'next/font/google'
 import { createClient } from '@/utils/supabase/server'
+import CookieBanner from '@/components/CookieBanner'
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -46,6 +47,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
           <main className="flex-1">{children}</main>
           <Footer />
         </ReactQueryProvider>
+        <CookieBanner />
       </body>
     </html>
   )

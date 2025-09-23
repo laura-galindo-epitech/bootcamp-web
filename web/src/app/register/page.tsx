@@ -2,6 +2,7 @@
 import { useState, FormEvent } from 'react'
 import { supabase } from '@/utils/supabase/client'
 import Link from 'next/link'
+import { PrivacyHint } from '@/components/PrivacyHint'
 
 export default function RegisterPage() {
   const [email, setEmail] = useState('')
@@ -46,6 +47,7 @@ export default function RegisterPage() {
   return (
     <section className="mx-auto max-w-sm px-4 py-10 space-y-5">
       <h1 className="text-xl font-semibold">Créer un compte</h1>
+      <PrivacyHint context="register" />
       <form onSubmit={onSubmit} className="space-y-3">
         <div>
           <label className="block text-sm mb-1">Email</label>
@@ -90,4 +92,3 @@ export default function RegisterPage() {
     </section>
   )
 }
-

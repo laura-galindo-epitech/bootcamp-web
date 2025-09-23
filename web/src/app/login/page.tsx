@@ -2,6 +2,7 @@
 import { FormEvent, useState } from 'react'
 import Link from 'next/link'
 import { supabase } from '@/utils/supabase/client'
+import { PrivacyHint } from '@/components/PrivacyHint'
 
 export default function LoginPage() {
   const [email, setEmail] = useState('')
@@ -43,6 +44,7 @@ export default function LoginPage() {
     <section className="mx-auto max-w-sm px-4 py-10 space-y-5">
       <h1 className="text-xl font-semibold">Connexion</h1>
       <p className="text-sm text-zinc-600">Choisissez une méthode de connexion</p>
+      <PrivacyHint context="login" />
 
       <div className="space-y-2">
         {/* Supabase Auth Google */}
