@@ -44,7 +44,6 @@ export default function CreateProductPage() {
   const [name, setName] = useState('');
   const [slug, setSlug] = useState('');
   const [description, setDescription] = useState('');
-  const [basePrice, setBasePrice] = useState(0);
   const [brandId, setBrandId] = useState<number | null>(null);
   const [isActive, setIsActive] = useState(true);
   const [brands, setBrands] = useState<Brand[]>([]);
@@ -107,12 +106,12 @@ export default function CreateProductPage() {
         if (colorFamiliesError) {
           throw new Error(`Erreur lors de la récupération des familles de couleur: ${colorFamiliesError.message}`);
         }
-        
+
         // Filtrer les valeurs "new" et les valeurs vides
         const uniqueColorFamilies = [...new Set(colorFamiliesData
           .map(item => item.color_family)
           .filter(color => color && color !== 'new'))];
-        
+
         setColorFamilies(uniqueColorFamilies);
       } catch (err) {
         setError(err instanceof Error ? err.message : 'Une erreur inconnue est survenue.');
@@ -157,10 +156,6 @@ export default function CreateProductPage() {
   };
 
   const validateForm = () => {
-    if (basePrice <= 0) {
-      setError('Le prix de base doit être supérieur à 0.');
-      return false;
-    }
     if (!brandId) {
       setError('Veuillez sélectionner une marque.');
       return false;
@@ -170,7 +165,7 @@ export default function CreateProductPage() {
       return false;
     }
     for (const variant of variants) {
-      if (variant.price <= 0) {
+      if (!variant.price || variant.price <= 0) {
         setError('Le prix de chaque variant doit être supérieur à 0.');
         return false;
       }
@@ -178,8 +173,8 @@ export default function CreateProductPage() {
         setError('Les champs "Taille EU" et "Genre" sont obligatoires pour chaque variant.');
         return false;
       }
-      if (variant.gender && !['man', 'woman', 'child'].includes(variant.gender)) {
-        setError('Le genre doit être "Homme", "Femme" ou "Enfant".');
+      if (variant.gender && !['men', 'women', 'child'].includes(variant.gender)) {
+        setError('Le genre doit être "Hommes", "Femmes" ou "Enfant".');
         return false;
       }
     }
@@ -211,7 +206,6 @@ export default function CreateProductPage() {
           name,
           slug: finalSlug,
           description,
-          base_price: basePrice,
           brand_id: brandId,
           is_active: isActive,
         }])
@@ -334,19 +328,6 @@ export default function CreateProductPage() {
           />
         </div>
         <div>
-          <label className="block mb-1">Prix de base</label>
-          <input
-            type="number"
-            value={basePrice}
-            onChange={(e) => setBasePrice(Number(e.target.value))}
-            className="w-full p-2 border rounded"
-            required
-            min="0.01"
-            step="0.01"
-          />
-          {basePrice <= 0 && <p className="text-red-500 text-sm mt-1">Le prix de base doit être supérieur à 0.</p>}
-        </div>
-        <div>
           <label className="block mb-1">Marque</label>
           <select
             value={brandId || ''}
@@ -433,8 +414,8 @@ export default function CreateProductPage() {
                     required
                   >
                     <option value="">Sélectionnez un genre</option>
-                    <option value="man">Homme</option>
-                    <option value="woman">Femme</option>
+                    <option value="men">Hommes</option>
+                    <option value="women">Femmes</option>
                     <option value="child">Enfant</option>
                   </select>
                 </div>
