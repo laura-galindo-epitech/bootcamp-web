@@ -1,9 +1,20 @@
 "use client"
 import Link from 'next/link'
-import { usePathname } from 'next/navigation'
+import { usePathname, useRouter } from 'next/navigation'
+import { supabase } from '@/utils/supabase/client'
+import { useEffect } from 'react'
 
 export default function AccountLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname()
+  const router = useRouter()
+  useEffect(() => {
+    let mounted = true
+    supabase.auth.getUser().then(({ data: { user } }) => {
+      if (!mounted) return
+      if (!user) router.replace('/login')
+    })
+    return () => { mounted = false }
+  }, [router])
   const items = [
     { href: '/account/orders', label: 'Commandes' },
     { href: '/account/addresses', label: 'Adresses' },
@@ -35,6 +46,17 @@ export default function AccountLayout({ children }: { children: React.ReactNode 
               )
             })}
           </nav>
+          <div className="mt-4 pt-3 border-t">
+            <button
+              onClick={async () => {
+                await supabase.auth.signOut()
+                window.location.href = '/'
+              }}
+              className="w-full text-left rounded-lg px-3 py-2 text-sm bg-white hover:bg-zinc-50 border border-zinc-200"
+            >
+              Se déconnecter
+            </button>
+          </div>
         </aside>
 
         <section className="min-h-[40vh] rounded-xl border bg-white p-4 md:p-6">
