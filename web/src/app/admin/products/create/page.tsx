@@ -106,12 +106,12 @@ export default function CreateProductPage() {
         if (colorFamiliesError) {
           throw new Error(`Erreur lors de la récupération des familles de couleur: ${colorFamiliesError.message}`);
         }
-        
+
         // Filtrer les valeurs "new" et les valeurs vides
         const uniqueColorFamilies = [...new Set(colorFamiliesData
           .map(item => item.color_family)
           .filter(color => color && color !== 'new'))];
-        
+
         setColorFamilies(uniqueColorFamilies);
       } catch (err) {
         setError(err instanceof Error ? err.message : 'Une erreur inconnue est survenue.');
@@ -165,7 +165,7 @@ export default function CreateProductPage() {
       return false;
     }
     for (const variant of variants) {
-      if (variant.price <= 0) {
+      if (!variant.price || variant.price <= 0) {
         setError('Le prix de chaque variant doit être supérieur à 0.');
         return false;
       }
