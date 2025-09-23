@@ -42,8 +42,10 @@ interface ProductImage {
 interface Product {
   id: number;
   name: string;
-  slug: string;
-  base_price: number;
+  // slug est optionnel selon les pages; on route par id
+  slug?: string;
+  // base_price peut être absent si tout passe par variants
+  base_price?: number;
   brand: Brand;
   product_images: ProductImage[];
   product_variants: ProductVariant[];
@@ -57,7 +59,7 @@ export default function ProductCard({ product }: { product: Product }) {
   const primaryImage = product.product_images.find(img => img.is_primary) || product.product_images[0];
 
   return (
-    <Link href={`/products/${product.slug}`} className="group block border rounded-2xl overflow-hidden bg-white">
+    <Link href={`/products/${product.id}`} className="group block border rounded-2xl overflow-hidden bg-white dark:bg-zinc-900 dark:border-zinc-800">
       <div className="relative aspect-square w-full overflow-hidden bg-gray-100">
         {primaryImage ? (
           <>

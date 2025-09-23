@@ -20,8 +20,11 @@ type ProductView = {
   variants: Variant[]
 }
 
-// The component now expects an 'id' property in the params object
-export default async function ProductDetailPage({ params }: { params: { id: string } }) {
+// In Next.js 15, params can be a Promise in Server Components
+export default async function ProductDetailPage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params
+  const idNum = Number(id)
+  if (!Number.isFinite(idNum)) return notFound()
   const supabase = await createClient()
 
   const { data: product, error } = await supabase
@@ -34,8 +37,8 @@ export default async function ProductDetailPage({ params }: { params: { id: stri
         product_images ( image_url, alt_text, is_primary )
       )
     `)
-    // The query now filters by 'id' and converts the URL parameter to a number
-    .eq('id', Number(params.id))
+    // Filter by numeric id (already validated above)
+    .eq('id', idNum)
     .eq('is_active', true)
     .maybeSingle()
 

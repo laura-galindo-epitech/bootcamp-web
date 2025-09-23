@@ -11,6 +11,20 @@ export default function CheckoutPage(){
   const total = items.reduce((s,i)=> s + i.quantity*i.unitPrice, 0)
 
   async function onSubmit(data: CheckoutData){
+    // 1) Rediriger vers Stripe Checkout (mode setup) pour saisir/valider la carte
+    const r = await fetch('/api/stripe/create-checkout-session', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email: data.email, returnUrl: `${location.origin}/checkout/success` })
+    })
+    const j = await r.json()
+    if (r.ok && j.url) {
+      // Mémoriser la commande pour finalisation après retour
+      sessionStorage.setItem('pendingOrder', JSON.stringify({ items, total, customer: data }))
+      window.location.href = j.url as string
+      return
+    }
+    // Fallback: continuer le flow démo si Stripe indisponible
     const res = await createCheckout({ items, total, customer: data })
     sessionStorage.setItem('lastOrder', JSON.stringify({ items, total, customer:data, orderNumber: res.orderNumber }))
     clear(); router.push(`/order/${res.orderNumber}`)
