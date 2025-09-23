@@ -4,6 +4,11 @@ import { ReactQueryProvider } from './providers'
 import Navbar from '../components/common/Navbar'
 import Footer from '@/components/common/Footer'
 import { Inter } from 'next/font/google'
+<<<<<<< Updated upstream
+=======
+import { createClient } from '@/utils/supabase/server'
+import CookieBanner from '@/components/CookieBanner'
+>>>>>>> Stashed changes
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -22,6 +27,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           <main className="flex-1">{children}</main>
           <Footer />
         </ReactQueryProvider>
+        <CookieBanner />
       </body>
     </html>
   )
