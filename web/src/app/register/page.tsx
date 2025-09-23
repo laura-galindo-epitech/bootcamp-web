@@ -47,10 +47,7 @@ export default function RegisterPage() {
   return (
     <section className="mx-auto max-w-sm px-4 py-10 space-y-5">
       <h1 className="text-xl font-semibold">Créer un compte</h1>
-<<<<<<< HEAD
       <PrivacyHint context="register" />
-=======
->>>>>>> 0a5ce0440fa38f00eabec6911c4f416134f330da
       <form onSubmit={onSubmit} className="space-y-3">
         <div>
           <label className="block text-sm mb-1">Email</label>
@@ -95,7 +92,3 @@ export default function RegisterPage() {
     </section>
   )
 }
-<<<<<<< HEAD
-=======
-
->>>>>>> 0a5ce0440fa38f00eabec6911c4f416134f330da
