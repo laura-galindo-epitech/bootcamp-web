@@ -11,7 +11,8 @@ type Variant = {
 
 type ProductView = {
   id: string
-  slug: string
+  model_slug: string
+  sku_model: string
   name: string
   brand: string
   description: string
@@ -19,20 +20,22 @@ type ProductView = {
   variants: Variant[]
 }
 
-export default async function ProductDetailPage({ params }: { params: { slug: string } }) {
+// The component now expects an 'id' property in the params object
+export default async function ProductDetailPage({ params }: { params: { id: string } }) {
   const supabase = await createClient()
 
   const { data: product, error } = await supabase
     .from('products')
     .select(`
-      id, slug, name, description, base_price, is_active,
+      id, model_slug, sku_model, name, description, is_active,
       brand: brand_id ( id, name, logo_url ),
       product_variants (
         id, eu_size, stock_quantity, price, gender, color, image_url,
         product_images ( image_url, alt_text, is_primary )
       )
     `)
-    .eq('slug', params.slug)
+    // The query now filters by 'id' and converts the URL parameter to a number
+    .eq('id', Number(params.id))
     .eq('is_active', true)
     .maybeSingle()
 
@@ -57,18 +60,19 @@ export default async function ProductDetailPage({ params }: { params: { slug: st
     id: String(v.id),
     size: String(v.eu_size),
     stock: v.stock_quantity ?? 0,
-    price: toCents(v.price ?? product.base_price ?? 0),
+    price: toCents(v.price ?? 0),
   }))
 
   const brandObj = Array.isArray((product as any).brand) ? (product as any).brand[0] : (product as any).brand
   const normalized: ProductView = {
     id: String(product.id),
-    slug: product.slug,
+    model_slug: product.model_slug,
+    sku_model: product.sku_model,
     name: product.name,
     brand: brandObj?.name ?? '',
     description: product.description ?? '',
     images: images.length ? images : ['/images/hero-shoe.jpg'],
-    variants: variants.length ? variants : [{ id: 'default', size: '42', stock: 0, price: toCents(product.base_price ?? 0) }],
+    variants: variants.length ? variants : [{ id: 'default', size: '42', stock: 0, price: toCents(0) }],
   }
 
   return (

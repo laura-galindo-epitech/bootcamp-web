@@ -10,9 +10,11 @@ type Variant = {
   price: number // cents
 }
 
+// Updated ProductView to match the new data structure from the server
 type ProductView = {
   id: string
-  slug: string
+  model_slug: string
+  sku_model: string
   name: string
   brand: string
   description: string
@@ -48,7 +50,7 @@ export default function ProductDetailClient({ product }: { product: ProductView 
       </div>
 
       <button
-        className="mt-6 inline-flex items-center rounded-full bg-black px-5 py-2.5 text-white hover:opacity-900"
+        className="mt-6 inline-flex items-center rounded-full bg-black px-5 py-2.5 text-white hover:opacity-90"
         onClick={() => {
           if (!selected) return
           add({
@@ -69,4 +71,3 @@ export default function ProductDetailClient({ product }: { product: ProductView 
     </div>
   )
 }
-
